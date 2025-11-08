@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Test script for analyzing a sample Maven project
+# Test script for analyzing a sample Maven project with MavenFlow
 
-JAR_FILE="target/maven-project-descriptor-1.0-SNAPSHOT.jar"
+JAR_FILE="target/mavenflow-1.0-SNAPSHOT.jar"
 
 if [ ! -f "$JAR_FILE" ]; then
     echo "❌ JAR file not found: $JAR_FILE"

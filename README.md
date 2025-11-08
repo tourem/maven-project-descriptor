@@ -1,6 +1,8 @@
-# Maven Project Descriptor Generator
+# MavenFlow
 
-A Spring Boot application that analyzes Maven projects and generates comprehensive JSON descriptors for deployment automation. Built with **Java 21**, **Spring Boot 3**, and modern Java features.
+**Intelligent Maven project analyzer** that generates comprehensive deployment descriptors with environment configurations, executable detection, and assembly artifacts for streamlined CI/CD automation.
+
+Built with **Java 21**, **Spring Boot 3**, and modern Java features.
 
 ## 🎯 Purpose
 
@@ -44,7 +46,7 @@ mvn clean package
 Or manually:
 
 ```bash
-java -jar target/maven-project-descriptor-1.0-SNAPSHOT.jar /path/to/maven/project
+java -jar target/mavenflow-1.0-SNAPSHOT.jar /path/to/maven/project
 ```
 
 ### Generate JSON File
@@ -61,7 +63,7 @@ java -jar target/maven-project-descriptor-1.0-SNAPSHOT.jar /path/to/maven/projec
 
 ```
 Usage:
-  java -jar maven-project-descriptor.jar <project-root-path> [options]
+  java -jar mavenflow.jar <project-root-path> [options]
 
 Arguments:
   project-root-path  Path to the root directory of the Maven project
@@ -72,10 +74,10 @@ Options:
                      If not specified, prints to stdout
 
 Examples:
-  java -jar maven-project-descriptor.jar /path/to/maven/project
-  java -jar maven-project-descriptor.jar /path/to/maven/project -o
-  java -jar maven-project-descriptor.jar /path/to/maven/project descriptor.json
-  java -jar maven-project-descriptor.jar /path/to/maven/project /custom/path/output.json
+  java -jar mavenflow.jar /path/to/maven/project
+  java -jar mavenflow.jar /path/to/maven/project -o
+  java -jar mavenflow.jar /path/to/maven/project descriptor.json
+  java -jar mavenflow.jar /path/to/maven/project /custom/path/output.json
 ```
 
 ## 📊 Output Example

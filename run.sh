@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Run script for Maven Project Descriptor Generator
+# Run script for MavenFlow
 
-JAR_FILE="target/maven-project-descriptor-1.0-SNAPSHOT.jar"
+JAR_FILE="target/mavenflow-1.0-SNAPSHOT.jar"
 
 if [ ! -f "$JAR_FILE" ]; then
     echo "❌ JAR file not found: $JAR_FILE"

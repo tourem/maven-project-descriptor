@@ -11,12 +11,12 @@
   </parent>
 
   <groupId>com.larbotech</groupId>
-  <artifactId>maven-project-descriptor</artifactId>
+  <artifactId>mavenflow</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>maven-project-descriptor</name>
-  <description>Maven Project Descriptor Generator for Deployment</description>
+  <name>MavenFlow</name>
+  <description>Intelligent Maven project analyzer that generates comprehensive deployment descriptors with environment configurations, executable detection, and assembly artifacts for streamlined CI/CD automation</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
