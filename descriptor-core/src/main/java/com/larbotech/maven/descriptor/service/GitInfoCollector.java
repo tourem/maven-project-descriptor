@@ -4,6 +4,7 @@ import com.larbotech.maven.descriptor.model.BuildInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -24,6 +25,8 @@ import java.util.Map;
  */
 @Slf4j
 public class GitInfoCollector {
+
+
 
     /**
      * Collect all build information including Git and CI/CD metadata.
@@ -106,7 +109,7 @@ public class GitInfoCollector {
                 String remoteUrl = repository.getConfig().getString("remote", "origin", "url");
                 builder.gitRemoteUrl(remoteUrl);
             }
-            
+
         } catch (Exception e) {
             log.warn("Failed to collect Git metadata: {}", e.getMessage());
         }
