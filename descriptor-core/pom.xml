@@ -45,6 +45,12 @@
       <artifactId>maven-core</artifactId>
     </dependency>
 
+    <!-- Plexus Utils for XML parsing (Xpp3Dom) -->
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+    </dependency>
+
     <!-- XML parsing -->
     <dependency>
       <groupId>org.dom4j</groupId>
