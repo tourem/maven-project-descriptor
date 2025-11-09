@@ -1,0 +1,171 @@
+name: Release Descriptor Plugin
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+        type: string
+      jfrog_url:
+        description: 'JFrog Artifactory URL (e.g., https://myjfrog.com/artifactory)'
+        required: true
+        type: string
+      jfrog_user:
+        description: 'JFrog username'
+        required: true
+        type: string
+      jfrog_token:
+        description: 'JFrog token/password'
+        required: true
+        type: string
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+      
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+      
+      - name: Calculate next snapshot version
+        id: calc_version
+        run: |
+          RELEASE_VERSION="${{ github.event.inputs.release_version }}"
+          echo "Release version: $RELEASE_VERSION"
+          
+          # Extract major, minor, patch from release version
+          if [[ $RELEASE_VERSION =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            MAJOR="${BASH_REMATCH[1]}"
+            MINOR="${BASH_REMATCH[2]}"
+            PATCH="${BASH_REMATCH[3]}"
+            
+            # Calculate next snapshot version (increment minor version)
+            NEXT_MINOR=$((MINOR + 1))
+            NEXT_SNAPSHOT="${MAJOR}.${NEXT_MINOR}.0-SNAPSHOT"
+            
+            echo "release_version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+            echo "next_snapshot=$NEXT_SNAPSHOT" >> $GITHUB_OUTPUT
+            
+            echo "✅ Release version: $RELEASE_VERSION"
+            echo "✅ Next snapshot version: $NEXT_SNAPSHOT"
+          else
+            echo "❌ Invalid version format. Expected: X.Y.Z (e.g., 1.0.0)"
+            exit 1
+          fi
+      
+      - name: Set release version
+        run: |
+          echo "Setting version to ${{ steps.calc_version.outputs.release_version }}"
+          mvn versions:set -DnewVersion=${{ steps.calc_version.outputs.release_version }} -DgenerateBackupPoms=false
+      
+      - name: Build and test
+        run: |
+          echo "Building release version ${{ steps.calc_version.outputs.release_version }}"
+          mvn clean verify -B
+      
+      - name: Configure Maven settings for JFrog
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<EOF
+          <settings>
+            <servers>
+              <server>
+                <id>jfrog-releases</id>
+                <username>${{ github.event.inputs.jfrog_user }}</username>
+                <password>${{ github.event.inputs.jfrog_token }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+      
+      - name: Deploy to JFrog Artifactory
+        run: |
+          echo "Deploying to JFrog Artifactory: ${{ github.event.inputs.jfrog_url }}"
+          mvn deploy -DskipTests -B \
+            -DaltDeploymentRepository=jfrog-releases::default::${{ github.event.inputs.jfrog_url }}/libs-release-local
+      
+      - name: Commit release version
+        run: |
+          git add pom.xml descriptor-core/pom.xml descriptor-plugin/pom.xml
+          git commit -m "Release version ${{ steps.calc_version.outputs.release_version }}"
+          git tag -a "v${{ steps.calc_version.outputs.release_version }}" \
+            -m "Release version ${{ steps.calc_version.outputs.release_version }}"
+      
+      - name: Set next snapshot version
+        run: |
+          echo "Setting next snapshot version to ${{ steps.calc_version.outputs.next_snapshot }}"
+          mvn versions:set -DnewVersion=${{ steps.calc_version.outputs.next_snapshot }} -DgenerateBackupPoms=false
+      
+      - name: Commit next snapshot version
+        run: |
+          git add pom.xml descriptor-core/pom.xml descriptor-plugin/pom.xml
+          git commit -m "Prepare next development iteration ${{ steps.calc_version.outputs.next_snapshot }}"
+      
+      - name: Push changes and tags
+        run: |
+          git push origin main
+          git push origin "v${{ steps.calc_version.outputs.release_version }}"
+      
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.calc_version.outputs.release_version }}
+          release_name: Release ${{ steps.calc_version.outputs.release_version }}
+          body: |
+            ## Descriptor Plugin v${{ steps.calc_version.outputs.release_version }}
+            
+            ### 📦 Maven Coordinates
+            ```xml
+            <dependency>
+              <groupId>com.larbotech</groupId>
+              <artifactId>descriptor-plugin</artifactId>
+              <version>${{ steps.calc_version.outputs.release_version }}</version>
+            </dependency>
+            ```
+            
+            ### 🚀 Usage
+            ```bash
+            mvn com.larbotech:descriptor-plugin:${{ steps.calc_version.outputs.release_version }}:generate
+            ```
+            
+            ### 📝 Changes
+            See [CHANGELOG.md](CHANGELOG.md) for details.
+            
+            ### 📦 Artifacts
+            Deployed to JFrog Artifactory: ${{ github.event.inputs.jfrog_url }}
+          draft: false
+          prerelease: false
+      
+      - name: Summary
+        run: |
+          echo "## ✅ Release Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Release Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release Version**: ${{ steps.calc_version.outputs.release_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Next Snapshot**: ${{ steps.calc_version.outputs.next_snapshot }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **JFrog URL**: ${{ github.event.inputs.jfrog_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Git Tag**: v${{ steps.calc_version.outputs.release_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
+          echo "- [GitHub Release](https://github.com/${{ github.repository }}/releases/tag/v${{ steps.calc_version.outputs.release_version }})" >> $GITHUB_STEP_SUMMARY
+          echo "- [JFrog Artifactory](${{ github.event.inputs.jfrog_url }})" >> $GITHUB_STEP_SUMMARY
+

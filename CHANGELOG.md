@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- GitHub Actions CI/CD workflow for automated releases to JFrog Artifactory
+- Automated release workflow with manual trigger (workflow_dispatch)
+- Automatic version management: next SNAPSHOT version calculation
+- GitHub Release creation with release notes and Maven coordinates
+- CI workflow for continuous integration (build and test on push/PR)
+- Comprehensive release documentation in README.md
+- Release best practices and troubleshooting guide
+
+### Changed
+- Fixed date serialization to ISO-8601 format (e.g., "2025-11-09T00:47:09.317185") instead of array format
+
+### Technical Details - Release Workflow
+- **Trigger**: Manual via GitHub Actions UI
+- **Parameters**: Release version, JFrog URL, JFrog username, JFrog token
+- **Version Logic**: Increments minor version for next SNAPSHOT (e.g., 1.0.0 → 1.1.0-SNAPSHOT)
+- **Deployment**: Artifacts deployed to JFrog Artifactory
+- **Git Tags**: Automatic tag creation (e.g., v1.0.0)
+- **GitHub Release**: Automatic creation with Maven coordinates and usage examples
+
 ## [1.0-SNAPSHOT] - 2025-11-09
 
 ### Added
