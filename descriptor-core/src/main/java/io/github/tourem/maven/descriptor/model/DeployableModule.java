@@ -103,5 +103,11 @@ public class DeployableModule {
      *           maven-assembly-plugin, jib-maven-plugin, dockerfile-maven-plugin
      */
     private List<String> buildPlugins;
+
+    /**
+     * Detailed executable information (type, method, structure, etc.)
+     * This provides comprehensive information about how the module can be executed.
+     */
+    private ExecutableInfo executableInfo;
 }
 

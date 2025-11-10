@@ -3,6 +3,7 @@ package io.github.tourem.maven.descriptor.service;
 import io.github.tourem.maven.descriptor.model.AssemblyArtifact;
 import io.github.tourem.maven.descriptor.model.DeployableModule;
 import io.github.tourem.maven.descriptor.model.EnvironmentConfig;
+import io.github.tourem.maven.descriptor.model.ExecutableInfo;
 import io.github.tourem.maven.descriptor.model.PackagingType;
 import io.github.tourem.maven.descriptor.model.ProjectDescriptor;
 import io.github.tourem.maven.descriptor.spi.FrameworkDetector;
@@ -33,6 +34,7 @@ public class MavenProjectAnalyzer {
     private final DeploymentMetadataDetector metadataDetector;
     private final EnvironmentConfigDetector environmentConfigDetector;
     private final ExecutablePluginDetector executablePluginDetector;
+    private final EnhancedExecutableDetector enhancedExecutableDetector;
     private final GitInfoCollector gitInfoCollector;
     private final List<FrameworkDetector> frameworkDetectors;
 
@@ -47,6 +49,7 @@ public class MavenProjectAnalyzer {
         this.environmentConfigDetector = new EnvironmentConfigDetector();
         this.metadataDetector = new DeploymentMetadataDetector();
         this.executablePluginDetector = new ExecutablePluginDetector();
+        this.enhancedExecutableDetector = new EnhancedExecutableDetector();
         this.gitInfoCollector = new GitInfoCollector();
         this.frameworkDetectors = loadFrameworkDetectors();
     }
@@ -277,6 +280,13 @@ public class MavenProjectAnalyzer {
             buildPlugins = null; // Don't include empty list in JSON
         }
 
+        // Enhanced executable detection (NEW)
+        ExecutableInfo executableInfo = enhancedExecutableDetector.detectExecutable(model, modulePath);
+        // Only include if executable or has important information
+        if (!executableInfo.isExecutable() && executableInfo.getType() == null) {
+            executableInfo = null;
+        }
+
         DeployableModule.DeployableModuleBuilder builder = DeployableModule.builder()
                 .groupId(groupId)
                 .artifactId(artifactId)
@@ -292,7 +302,8 @@ public class MavenProjectAnalyzer {
                 .javaVersion(javaVersion)
                 .mainClass(mainClass)
                 .localDependencies(localDeps)
-                .buildPlugins(buildPlugins);
+                .buildPlugins(buildPlugins)
+                .executableInfo(executableInfo);
 
         // Apply framework detectors via SPI
         for (FrameworkDetector detector : frameworkDetectors) {

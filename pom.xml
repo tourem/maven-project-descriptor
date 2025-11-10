@@ -256,6 +256,7 @@
             <source>21</source>
             <additionalOptions>
               <additionalOption>-Xdoclint:none</additionalOption>
+              <additionalOption>--ignore-source-errors</additionalOption>
             </additionalOptions>
           </configuration>
         </plugin>
