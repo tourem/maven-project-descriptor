@@ -104,6 +104,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Git Tags**: Automatic tag creation (e.g., v1.0.0)
 - **GitHub Release**: Automatic creation with Maven coordinates and usage examples
 
+## [1.1.0] - 2025-11-10
+
+### Added
+- Enhanced executable detection covering Spring Boot apps without `spring-boot-maven-plugin` and alternative executable patterns (shade, assembly, custom main class, WAR with embedded servers)
+- New model: `ExecutableInfo` and `ExecutableType` with rich metadata exposed in the descriptor
+- 16 unit tests for the detector and integration into module analysis
+- Documentation: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and feature guide updated
+
+### Fixed
+- Javadoc build errors with Lombok-generated types by configuring the Javadoc plugin to ignore source errors
+
+### Notes
+- No breaking changes; existing fields preserved. New `executableInfo` is optional and only present when applicable.
+
+
 ## [1.0.0] - 2025-11-09
 
 ### Added
