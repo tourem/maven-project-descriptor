@@ -105,6 +105,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **GitHub Release**: Automatic creation with Maven coordinates and usage examples
 
 
+## [1.2.1] - 2025-11-11
+
+### Changed
+- GitHub Actions workflows now use JDK 17 (aligned with project requirements)
+- GitHub release notes now synchronize the Features section dynamically from README.md
+- Maven coordinates in release workflows updated from `com.larbotech` to `io.github.tourem`
+
+### Fixed
+- Added retry logic (3 attempts with backoff) in the Maven Central release workflow to mitigate transient HTTP 500 errors
+- Added Maven Wagon HTTP retry handler configuration (`-Dmaven.wagon.http.retryHandler.count=5 -Dmaven.wagon.http.pool=false`)
+- Made `versions:set`, build, and deploy steps resilient against Maven Central network issues
+
+### Documentation
+- Updated README, USAGE and feature guide to reference version `1.2.1`
+
 ## [1.2.0] - 2025-11-11
 
 ### Added
