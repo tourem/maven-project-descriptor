@@ -24,10 +24,10 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
           server-id: central
@@ -108,46 +108,47 @@ jobs:
           git push origin main
           git push origin "v${{ steps.validate_version.outputs.release_version }}"
       
+      - name: Generate release body
+        run: |
+          mkdir -p .github
+          cat > .github/RELEASE_BODY.md <<'EOF'
+          ## Maven Descriptor Plugin v${{ steps.validate_version.outputs.release_version }}
+
+          ### 📦 Maven Coordinates
+
+          Add to your `pom.xml`:
+          ```xml
+          <plugin>
+            <groupId>io.github.tourem</groupId>
+            <artifactId>descriptor-plugin</artifactId>
+            <version>${{ steps.validate_version.outputs.release_version }}</version>
+          </plugin>
+          ```
+
+          Or use directly:
+          ```bash
+          mvn io.github.tourem:descriptor-plugin:${{ steps.validate_version.outputs.release_version }}:generate
+          ```
+
+          ### 🚀 Features
+          EOF
+          awk '/^##[[:space:]]+Features/{flag=1; next} /^##[[:space:]]+/{flag=0} flag' README.md >> .github/RELEASE_BODY.md
+          cat >> .github/RELEASE_BODY.md <<'EOF'
+
+          ### 📚 Documentation
+          - [GitHub Repository](https://github.com/${{ github.repository }})
+          - [Maven Central](https://central.sonatype.com/artifact/io.github.tourem/descriptor-plugin/${{ steps.validate_version.outputs.release_version }})
+
+          ### 📝 Changes
+          See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
+          EOF
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.validate_version.outputs.release_version }}
           name: Release ${{ steps.validate_version.outputs.release_version }}
-          body: |
-            ## Maven Descriptor Plugin v${{ steps.validate_version.outputs.release_version }}
-            
-            ### 📦 Maven Coordinates
-            
-            Add to your `pom.xml`:
-            ```xml
-            <plugin>
-              <groupId>io.github.tourem</groupId>
-              <artifactId>descriptor-plugin</artifactId>
-              <version>${{ steps.validate_version.outputs.release_version }}</version>
-            </plugin>
-            ```
-            
-            Or use directly:
-            ```bash
-            mvn io.github.tourem:descriptor-plugin:${{ steps.validate_version.outputs.release_version }}:generate
-            ```
-            
-            ### 🚀 Features
-            - Intelligent Maven project analysis
-            - Comprehensive deployment descriptors (JSON/YAML/HTML)
-            - Environment configuration detection
-            - Spring Boot executable detection
-            - Assembly artifact detection
-            - Git and CI/CD metadata collection
-            - Webhook notifications
-            - Dark/light mode HTML viewer
-            
-            ### 📚 Documentation
-            - [GitHub Repository](https://github.com/tourem/descriptor-plugin)
-            - [Maven Central](https://central.sonatype.com/artifact/io.github.tourem/descriptor-plugin/${{ steps.validate_version.outputs.release_version }})
-            
-            ### 📝 Changes
-            See commit history for details.
+          body_path: .github/RELEASE_BODY.md
           draft: false
           prerelease: false
           generate_release_notes: true
