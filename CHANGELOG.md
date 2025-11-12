@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Container image detection for deployable modules (new `container` field): Jib, Spring Boot build-image, Quarkus, Fabric8, Micronaut
+- HTML: Container section displayed per deployable module (tool, image, tags, registry, base/builder/run, publish)
+- Documentation: README updated with container example
+
 
 #### 🚀 Advanced Features (Feature Branch: feature/advanced-features)
 

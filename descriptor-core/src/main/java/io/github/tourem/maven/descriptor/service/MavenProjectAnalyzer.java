@@ -37,6 +37,7 @@ public class MavenProjectAnalyzer {
     private final EnhancedExecutableDetector enhancedExecutableDetector;
     private final GitInfoCollector gitInfoCollector;
     private final List<FrameworkDetector> frameworkDetectors;
+    private final DockerImageDetector dockerImageDetector;
 
     /**
      * Default constructor that initializes all dependencies.
@@ -52,6 +53,7 @@ public class MavenProjectAnalyzer {
         this.enhancedExecutableDetector = new EnhancedExecutableDetector();
         this.gitInfoCollector = new GitInfoCollector();
         this.frameworkDetectors = loadFrameworkDetectors();
+        this.dockerImageDetector = new DockerImageDetector();
     }
 
     /**
@@ -287,6 +289,9 @@ public class MavenProjectAnalyzer {
             executableInfo = null;
         }
 
+        // Container image detection (maintained plugins only)
+        var containerInfo = dockerImageDetector.detect(model, modulePath);
+
         DeployableModule.DeployableModuleBuilder builder = DeployableModule.builder()
                 .groupId(groupId)
                 .artifactId(artifactId)
@@ -303,7 +308,8 @@ public class MavenProjectAnalyzer {
                 .mainClass(mainClass)
                 .localDependencies(localDeps)
                 .buildPlugins(buildPlugins)
-                .executableInfo(executableInfo);
+                .executableInfo(executableInfo)
+                .container(containerInfo);
 
         // Apply framework detectors via SPI
         for (FrameworkDetector detector : frameworkDetectors) {

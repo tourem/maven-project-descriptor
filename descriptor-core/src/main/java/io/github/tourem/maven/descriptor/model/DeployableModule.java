@@ -109,5 +109,11 @@ public class DeployableModule {
      * This provides comprehensive information about how the module can be executed.
      */
     private ExecutableInfo executableInfo;
+
+    /**
+     * Container image information if a maintained container build plugin is configured
+     * (Jib, Spring Boot build-image, Fabric8, Quarkus, Micronaut, ...).
+     */
+    private ContainerInfo container;
 }
 

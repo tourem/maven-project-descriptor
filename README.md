@@ -25,6 +25,8 @@ A Maven plugin that automatically generates comprehensive deployment descriptors
 ✅ **Dry-Run Mode**: Preview descriptor in console without generating files
 ✅ **HTML Documentation**: Generate readable HTML reports for non-technical teams
 ✅ **Post-Generation Hooks**: Execute custom scripts after descriptor generation
+- ✅ Container Images: Detect maintained Maven container plugins (Jib, Spring Boot build-image, Fabric8, Quarkus, Micronaut) and include image coordinates in the descriptor
+
 
 ### 🎁 Bonus Features
 ✅ **Multiple Export Formats**: JSON, YAML, or both
@@ -222,6 +224,21 @@ The plugin automatically analyzes your Maven project and detects:
 - **Actuator Endpoints**: Health, info, metrics endpoints
 - **Maven Assembly**: Assembly descriptors, formats, repository paths
 - **Build Plugins**: spring-boot-maven-plugin, maven-assembly-plugin
+- **Container Images**: image coordinates (registry/group/name), tag(s), tool used (jib, spring-boot, fabric8, quarkus, micronaut), base or builder images when available
+
+Example snippet in descriptor.json for a module:
+
+```json
+{
+  "container": {
+    "tool": "jib",
+    "image": "ghcr.io/acme/demo",
+    "tag": "1.0.0",
+    "additionalTags": ["latest"]
+  }
+}
+```
+
 
 
 

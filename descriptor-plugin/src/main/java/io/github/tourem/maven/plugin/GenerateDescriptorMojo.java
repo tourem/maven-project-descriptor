@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 
 /**
  * Maven plugin goal that generates a deployment descriptor for the project.
- * 
+ *
  * This plugin analyzes the Maven project structure and generates a comprehensive
  * JSON descriptor containing deployment information including:
  * - Deployable modules (JAR, WAR, EAR)
@@ -1149,6 +1149,105 @@ public class GenerateDescriptorMojo extends AbstractMojo {
                     html.append("          </div>\n");
                 }
                 html.append("        </div>\n");
+
+                // Container Image (if available)
+                if (module.getContainer() != null) {
+                    var c = module.getContainer();
+                    html.append("        <div class=\"section-header\" style=\"font-size: 1.1em; margin-top: 20px;\">🐳 Container Image</div>\n");
+                    html.append("        <div class=\"info-grid\">\n");
+
+                    if (c.getTool() != null) {
+                        html.append("          <div class=\"info-item\">\n");
+                        html.append("            <div class=\"info-label\">Tool</div>\n");
+                        html.append("            <div class=\"info-value\">").append(escapeHtml(c.getTool())).append("</div>\n");
+                        html.append("          </div>\n");
+                    }
+
+                    if (c.getImage() != null) {
+                        html.append("          <div class=\"info-item\">\n");
+                        html.append("            <div class=\"info-label\">Image</div>\n");
+                        html.append("            <div class=\"info-value\"><code>").append(escapeHtml(c.getImage())).append("</code></div>\n");
+                        html.append("          </div>\n");
+                    }
+
+                    if (c.getTag() != null) {
+                        html.append("          <div class=\"info-item\">\n");
+                        html.append("            <div class=\"info-label\">Tag</div>\n");
+                        html.append("            <div class=\"info-value\"><code>").append(escapeHtml(c.getTag())).append("</code></div>\n");
+                        html.append("          </div>\n");
+                    }
+
+                    if (c.getAdditionalTags() != null && !c.getAdditionalTags().isEmpty()) {
+                        html.append("          <div class=\"info-item\">\n");
+                        html.append("            <div class=\"info-label\">Additional Tags</div>\n");
+                        html.append("            <div class=\"info-value\"><code>")
+                            .append(escapeHtml(String.join(", ", c.getAdditionalTags())))
+                            .append("</code></div>\n");
+                        html.append("          </div>\n");
+                    }
+
+                    if (c.getRegistry() != null) {
+                        html.append("          <div class=\"info-item\">\n");
+                        html.append("            <div class=\"info-label\">Registry</div>\n");
+                        html.append("            <div class=\"info-value\">").append(escapeHtml(c.getRegistry())).append("</div>\n");
+                        html.append("          </div>\n");
+                    }
+
+                    if (c.getGroup() != null) {
+                        html.append("          <div class=\"info-item\">\n");
+                        html.append("            <div class=\"info-label\">Group</div>\n");
+                        html.append("            <div class=\"info-value\">").append(escapeHtml(c.getGroup())).append("</div>\n");
+                        html.append("          </div>\n");
+                    }
+
+                    if (c.getBaseImage() != null) {
+                        html.append("          <div class=\"info-item\">\n");
+                        html.append("            <div class=\"info-label\">Base Image</div>\n");
+                        html.append("            <div class=\"info-value\"><code>").append(escapeHtml(c.getBaseImage())).append("</code></div>\n");
+                        html.append("          </div>\n");
+                    }
+
+                    if (c.getBuilderImage() != null) {
+                        html.append("          <div class=\"info-item\">\n");
+                        html.append("            <div class=\"info-label\">Builder Image</div>\n");
+                        html.append("            <div class=\"info-value\"><code>").append(escapeHtml(c.getBuilderImage())).append("</code></div>\n");
+                        html.append("          </div>\n");
+                    }
+
+                    if (c.getRunImage() != null) {
+                        html.append("          <div class=\"info-item\">\n");
+                        html.append("            <div class=\"info-label\">Run Image</div>\n");
+                        html.append("            <div class=\"info-value\"><code>").append(escapeHtml(c.getRunImage())).append("</code></div>\n");
+                        html.append("          </div>\n");
+                    }
+
+                    if (c.getPublish() != null) {
+                        html.append("          <div class=\"info-item\">\n");
+                        html.append("            <div class=\"info-label\">Auto-Publish</div>\n");
+                        html.append("            <div class=\"info-value\">")
+                            .append(Boolean.TRUE.equals(c.getPublish()) ? "✅ Enabled" : "❌ Disabled")
+                            .append("</div>\n");
+                        html.append("          </div>\n");
+                    }
+
+                    // Example commands
+                    if (c.getImage() != null) {
+                        String ref = c.getImage();
+                        if (c.getTag() != null && !c.getTag().isEmpty()) {
+                            ref = ref + ":" + c.getTag();
+                        }
+                        html.append("          <div class=\"info-item\" style=\"grid-column: 1 / -1;\">\n");
+                        html.append("            <div class=\"info-label\">Commands</div>\n");
+                        html.append("            <div class=\"info-value\">");
+                        html.append("<div>Pull: <code>docker pull ").append(escapeHtml(ref)).append("</code></div>");
+                        html.append("<div>Run: <code>docker run --rm ").append(escapeHtml(ref)).append("</code></div>");
+                        html.append("            </div>\n");
+                        html.append("          </div>\n");
+                    }
+
+                    html.append("        </div>\n");
+                }
+
 
                 // Build Plugins
                 if (module.getBuildPlugins() != null && !module.getBuildPlugins().isEmpty()) {
