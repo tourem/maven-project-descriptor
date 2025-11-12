@@ -46,7 +46,7 @@ Add the plugin to your project's `pom.xml`:
         <plugin>
             <groupId>io.github.tourem</groupId>
             <artifactId>descriptor-plugin</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.2</version>
         </plugin>
     </plugins>
 </build>
@@ -55,7 +55,7 @@ Add the plugin to your project's `pom.xml`:
 Or use it directly without adding to POM:
 
 ```bash
-mvn io.github.tourem:descriptor-plugin:1.2.1:generate
+mvn io.github.tourem:descriptor-plugin:1.2.2:generate
 ```
 
 ### Basic Usage
@@ -63,7 +63,7 @@ mvn io.github.tourem:descriptor-plugin:1.2.1:generate
 Generate a deployment descriptor at your project root:
 
 ```bash
-mvn io.github.tourem:descriptor-plugin:1.2.1:generate
+mvn io.github.tourem:descriptor-plugin:1.2.2:generate
 ```
 
 This creates a `descriptor.json` file containing all deployment information.
@@ -74,20 +74,20 @@ The most common commands at a glance:
 
 ```bash
 # Default (descriptor.json at project root)
-mvn io.github.tourem:descriptor-plugin:1.2.1:generate
+mvn io.github.tourem:descriptor-plugin:1.2.2:generate
 
 # YAML or both JSON+YAML
-mvn io.github.tourem:descriptor-plugin:1.2.1:generate -Ddescriptor.exportFormat=yaml
-mvn io.github.tourem:descriptor-plugin:1.2.1:generate -Ddescriptor.exportFormat=both
+mvn io.github.tourem:descriptor-plugin:1.2.2:generate -Ddescriptor.exportFormat=yaml
+mvn io.github.tourem:descriptor-plugin:1.2.2:generate -Ddescriptor.exportFormat=both
 
 # Generate an HTML page for non-technical stakeholders
-mvn io.github.tourem:descriptor-plugin:1.2.1:generate -Ddescriptor.generateHtml=true
+mvn io.github.tourem:descriptor-plugin:1.2.2:generate -Ddescriptor.generateHtml=true
 
 # Attach a ZIP artifact for repository deployment
-mvn io.github.tourem:descriptor-plugin:1.2.1:generate -Ddescriptor.format=zip -Ddescriptor.attach=true
+mvn io.github.tourem:descriptor-plugin:1.2.2:generate -Ddescriptor.format=zip -Ddescriptor.attach=true
 
 # Dry-run (print summary, no files)
-mvn io.github.tourem:descriptor-plugin:1.2.1:generate -Ddescriptor.summary=true
+mvn io.github.tourem:descriptor-plugin:1.2.2:generate -Ddescriptor.summary=true
 ```
 ### POM Configuration
 
@@ -99,7 +99,7 @@ Configure the plugin to run automatically during the build:
         <plugin>
             <groupId>io.github.tourem</groupId>
             <artifactId>descriptor-plugin</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.2</version>
             <configuration>
                 <!-- Output file name (default: descriptor.json) -->
                 <outputFile>deployment-info.json</outputFile>
@@ -189,7 +189,7 @@ The descriptor includes minimal build metadata (commit SHA, branch, CI info) for
 Generate a readable HTML report alongside the JSON/YAML descriptor:
 
 ```bash
-mvn io.github.tourem:descriptor-plugin:1.2.1:generate -Ddescriptor.generateHtml=true
+mvn io.github.tourem:descriptor-plugin:1.2.2:generate -Ddescriptor.generateHtml=true
 ```
 
 Screenshots:

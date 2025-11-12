@@ -92,9 +92,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Eclipse JGit dependency for Git metadata extraction
 
 
-### Fixed
-- Archive creation now includes all generated files (JSON, YAML, HTML, JSON.gz) based on `exportFormat`, `generateHtml`, and `compress` options. Previously only the JSON file was archived.
-- Added unit tests covering ZIP/JAR/TAR.GZ/TAR.BZ2 combinations to prevent regressions.
 
 ### Changed
 - Fixed date serialization to ISO-8601 format (e.g., "2025-11-09T00:47:09.317185") instead of array format
@@ -109,10 +106,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Git Tags**: Automatic tag creation (e.g., v1.0.0)
 - **GitHub Release**: Automatic creation with Maven coordinates and usage examples
 
+## [1.2.2] - 2025-11-12
+
+### Fixed
+- Archive creation now includes all generated files (JSON, YAML, HTML, JSON.gz) based on `exportFormat`, `generateHtml`, and `compress` options. Previously only the JSON file was archived.
+- Added unit tests covering ZIP/JAR/TAR.GZ/TAR.BZ2 and additional combinations to prevent regressions.
+
+### Documentation
+- Updated README to reference version `1.2.2`
+
+
 
 ## [1.2.1] - 2025-11-11
 
 ### Changed
+
 - GitHub Actions workflows now use JDK 17 (aligned with project requirements)
 - GitHub release notes now synchronize the Features section dynamically from README.md
 - Maven coordinates in release workflows updated from `com.larbotech` to `io.github.tourem`
