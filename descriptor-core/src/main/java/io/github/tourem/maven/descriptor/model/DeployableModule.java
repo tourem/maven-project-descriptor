@@ -11,6 +11,8 @@ import java.util.List;
 /**
  * Represents a deployable module in a Maven project.
  * This includes JAR, WAR, EAR files and Spring Boot executables.
+ * @author tourem
+
  */
 @Data
 @Builder
@@ -18,27 +20,27 @@ import java.util.List;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DeployableModule {
-    
+
     /**
      * Maven groupId
      */
     private String groupId;
-    
+
     /**
      * Maven artifactId
      */
     private String artifactId;
-    
+
     /**
      * Maven version
      */
     private String version;
-    
+
     /**
      * Type of packaging (jar, war, ear)
      */
     private String packaging;
-    
+
     /**
      * Path in Maven repository format
      * Example: com/larbotech/task/1.1.2-SNAPSHOT/task-1.1.2-SNAPSHOT.jar
@@ -55,17 +57,17 @@ public class DeployableModule {
      * Final name of the artifact (may differ from artifactId-version if customized)
      */
     private String finalName;
-    
+
     /**
      * Whether this is a Spring Boot executable
      */
     private boolean springBootExecutable;
-    
+
     /**
      * Classifier if any (e.g., "exec", "sources", "javadoc")
      */
     private String classifier;
-    
+
     /**
      * Relative path to the module from project root
      */

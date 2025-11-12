@@ -22,6 +22,8 @@ import java.util.Map;
 
 /**
  * Collects Git and CI/CD metadata for build traceability.
+ * @author tourem
+
  */
 @Slf4j
 public class GitInfoCollector {
@@ -36,21 +38,21 @@ public class GitInfoCollector {
      */
     public BuildInfo collectBuildInfo(Path projectPath) {
         BuildInfo.BuildInfoBuilder builder = BuildInfo.builder();
-        
+
         // Build timestamp and host info
         builder.buildTimestamp(LocalDateTime.now());
         builder.buildHost(getHostname());
         builder.buildUser(System.getProperty("user.name"));
-        
+
         // Git metadata
         collectGitInfo(projectPath, builder);
-        
+
         // CI/CD metadata
         collectCiInfo(builder);
-        
+
         return builder.build();
     }
-    
+
     /**
      * Collect Git metadata using JGit.
      */
@@ -61,50 +63,50 @@ public class GitInfoCollector {
                 log.debug("No Git repository found at {}", projectPath);
                 return;
             }
-            
+
             FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
             try (Repository repository = repositoryBuilder.setGitDir(gitDir)
                     .readEnvironment()
                     .findGitDir()
                     .build()) {
-                
+
                 // Get HEAD commit
                 ObjectId head = repository.resolve(Constants.HEAD);
                 if (head != null) {
                     String commitSha = head.getName();
                     builder.gitCommitSha(commitSha);
                     builder.gitCommitShortSha(commitSha.substring(0, 7));
-                    
+
                     // Get commit details
                     try (RevWalk revWalk = new RevWalk(repository)) {
                         RevCommit commit = revWalk.parseCommit(head);
                         builder.gitCommitMessage(commit.getShortMessage());
                         builder.gitCommitAuthor(commit.getAuthorIdent().getName());
-                        
+
                         Instant commitInstant = Instant.ofEpochSecond(commit.getCommitTime());
                         builder.gitCommitTime(LocalDateTime.ofInstant(commitInstant, ZoneId.systemDefault()));
-                        
+
                         revWalk.dispose();
                     }
                 }
-                
+
                 // Get branch name
                 String branch = repository.getBranch();
                 builder.gitBranch(branch);
-                
+
                 // Get tag if on a tagged commit
                 String tag = getTag(repository, head);
                 if (tag != null) {
                     builder.gitTag(tag);
                 }
-                
+
                 // Check if working directory is dirty
                 try (Git git = new Git(repository)) {
                     Status status = git.status().call();
                     boolean isDirty = !status.isClean();
                     builder.gitDirty(isDirty);
                 }
-                
+
                 // Get remote URL
                 String remoteUrl = repository.getConfig().getString("remote", "origin", "url");
                 builder.gitRemoteUrl(remoteUrl);
@@ -114,7 +116,7 @@ public class GitInfoCollector {
             log.warn("Failed to collect Git metadata: {}", e.getMessage());
         }
     }
-    
+
     /**
      * Find .git directory starting from project path.
      */
@@ -129,7 +131,7 @@ public class GitInfoCollector {
         }
         return null;
     }
-    
+
     /**
      * Get tag name if HEAD is on a tagged commit.
      */
@@ -150,13 +152,13 @@ public class GitInfoCollector {
         }
         return null;
     }
-    
+
     /**
      * Collect CI/CD environment metadata.
      */
     private void collectCiInfo(BuildInfo.BuildInfoBuilder builder) {
         Map<String, String> env = System.getenv();
-        
+
         // GitHub Actions
         if (env.containsKey("GITHUB_ACTIONS")) {
             builder.ciProvider("GitHub Actions");
@@ -165,7 +167,7 @@ public class GitInfoCollector {
             builder.ciJobName(env.get("GITHUB_WORKFLOW"));
             builder.ciActor(env.get("GITHUB_ACTOR"));
             builder.ciEventName(env.get("GITHUB_EVENT_NAME"));
-            
+
             String repo = env.get("GITHUB_REPOSITORY");
             String runId = env.get("GITHUB_RUN_ID");
             if (repo != null && runId != null) {
@@ -215,7 +217,7 @@ public class GitInfoCollector {
             builder.ciActor(env.get("BUILD_REQUESTEDFOR"));
         }
     }
-    
+
     /**
      * Get hostname safely.
      */

@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 /**
  * Detects Docker/OCI container image configuration from common, maintained Maven plugins.
  * Supported tools: Jib, Spring Boot build-image, Fabric8 Docker, Quarkus, Micronaut.
+ * @author tourem
+
  */
 @Slf4j
 public class DockerImageDetector {

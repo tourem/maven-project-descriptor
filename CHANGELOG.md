@@ -7,11 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Container image detection for deployable modules (new `container` field): Jib, Spring Boot build-image, Quarkus, Fabric8, Micronaut
-- HTML: Container section displayed per deployable module (tool, image, tags, registry, base/builder/run, publish)
-- Documentation: README updated with container example
-
 
 #### 🚀 Advanced Features (Feature Branch: feature/advanced-features)
 
@@ -109,6 +104,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Deployment**: Artifacts deployed to JFrog Artifactory
 - **Git Tags**: Automatic tag creation (e.g., v1.0.0)
 - **GitHub Release**: Automatic creation with Maven coordinates and usage examples
+
+## [1.3.0] - 2025-11-12
+
+### Added
+- Container image detection for deployable modules (new `container` field): Jib, Spring Boot build-image, Quarkus, Fabric8, Micronaut, JKube
+- HTML: Container section displayed per deployable module (tool, image, tags, registry, base/builder/run, publish)
+- Documentation: README updated with container example and usage
+
 
 ## [1.2.2] - 2025-11-12
 

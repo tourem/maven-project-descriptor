@@ -13,6 +13,8 @@ import java.util.*;
 /**
  * Service to detect environment-specific configurations from Spring Boot configuration files.
  * Reads both common application.yml/properties and profile-specific files.
+ * @author tourem
+
  */
 @Slf4j
 public class EnvironmentConfigDetector {

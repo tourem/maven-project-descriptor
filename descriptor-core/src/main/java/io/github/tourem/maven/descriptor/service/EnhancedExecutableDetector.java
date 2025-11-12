@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
  * - maven-jar-plugin + maven-dependency-plugin
  * - WAR executables (Spring Boot, Jetty, Tomcat)
  * - EAR applications
+ * @author tourem
+
  */
 @Slf4j
 public class EnhancedExecutableDetector {

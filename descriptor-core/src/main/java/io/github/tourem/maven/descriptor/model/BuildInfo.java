@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 /**
  * Build and Git metadata for traceability and reproducibility.
- * 
+ *
  * @param gitCommitSha Full Git commit SHA
  * @param gitCommitShortSha Short Git commit SHA (7 chars)
  * @param gitBranch Current Git branch name
@@ -27,6 +27,8 @@ import java.time.LocalDateTime;
  * @param buildTimestamp When the descriptor was built
  * @param buildHost Hostname where the build was executed
  * @param buildUser User who executed the build
+ * @author tourem
+
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)

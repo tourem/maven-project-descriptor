@@ -7,13 +7,15 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**
  * Service to detect Spring Boot executables in Maven projects.
+ * @author tourem
+
  */
 @Slf4j
 public class SpringBootDetector {
-    
+
     private static final String SPRING_BOOT_PLUGIN_GROUP_ID = "org.springframework.boot";
     private static final String SPRING_BOOT_PLUGIN_ARTIFACT_ID = "spring-boot-maven-plugin";
-    
+
     /**
      * Check if a module is a Spring Boot executable.
      * A module is considered a Spring Boot executable if it has the spring-boot-maven-plugin
@@ -26,29 +28,29 @@ public class SpringBootDetector {
         if (model.getBuild() == null || model.getBuild().getPlugins() == null) {
             return false;
         }
-        
+
         for (Plugin plugin : model.getBuild().getPlugins()) {
             if (isSpringBootPlugin(plugin)) {
                 log.debug("Found Spring Boot plugin in module: {}", model.getArtifactId());
                 return true;
             }
         }
-        
+
         // Also check plugin management
-        if (model.getBuild().getPluginManagement() != null && 
+        if (model.getBuild().getPluginManagement() != null &&
             model.getBuild().getPluginManagement().getPlugins() != null) {
             for (Plugin plugin : model.getBuild().getPluginManagement().getPlugins()) {
                 if (isSpringBootPlugin(plugin)) {
-                    log.debug("Found Spring Boot plugin in plugin management for module: {}", 
+                    log.debug("Found Spring Boot plugin in plugin management for module: {}",
                              model.getArtifactId());
                     return true;
                 }
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Get the classifier configured in Spring Boot plugin if any.
      * Some configurations use a classifier like "exec" for the executable jar.
@@ -60,16 +62,16 @@ public class SpringBootDetector {
         if (model.getBuild() == null || model.getBuild().getPlugins() == null) {
             return null;
         }
-        
+
         for (Plugin plugin : model.getBuild().getPlugins()) {
             if (isSpringBootPlugin(plugin)) {
                 return extractClassifier(plugin);
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Get the custom final name from Spring Boot plugin configuration if any.
      *
@@ -80,25 +82,25 @@ public class SpringBootDetector {
         if (model.getBuild() == null || model.getBuild().getPlugins() == null) {
             return null;
         }
-        
+
         for (Plugin plugin : model.getBuild().getPlugins()) {
             if (isSpringBootPlugin(plugin)) {
                 return extractFinalName(plugin);
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Check if a plugin is the Spring Boot Maven plugin.
      */
     private boolean isSpringBootPlugin(Plugin plugin) {
         String groupId = plugin.getGroupId() != null ? plugin.getGroupId() : "org.apache.maven.plugins";
-        return SPRING_BOOT_PLUGIN_GROUP_ID.equals(groupId) && 
+        return SPRING_BOOT_PLUGIN_GROUP_ID.equals(groupId) &&
                SPRING_BOOT_PLUGIN_ARTIFACT_ID.equals(plugin.getArtifactId());
     }
-    
+
     /**
      * Extract classifier from plugin configuration.
      * Example configuration:
@@ -110,7 +112,7 @@ public class SpringBootDetector {
         if (plugin.getConfiguration() == null) {
             return null;
         }
-        
+
         try {
             Xpp3Dom config = (Xpp3Dom) plugin.getConfiguration();
             Xpp3Dom classifierNode = config.getChild("classifier");
@@ -120,10 +122,10 @@ public class SpringBootDetector {
         } catch (Exception e) {
             log.warn("Error extracting classifier from Spring Boot plugin configuration", e);
         }
-        
+
         return null;
     }
-    
+
     /**
      * Extract final name from plugin configuration.
      * Example configuration:
@@ -135,7 +137,7 @@ public class SpringBootDetector {
         if (plugin.getConfiguration() == null) {
             return null;
         }
-        
+
         try {
             Xpp3Dom config = (Xpp3Dom) plugin.getConfiguration();
             Xpp3Dom finalNameNode = config.getChild("finalName");
@@ -145,7 +147,7 @@ public class SpringBootDetector {
         } catch (Exception e) {
             log.warn("Error extracting finalName from Spring Boot plugin configuration", e);
         }
-        
+
         return null;
     }
 }

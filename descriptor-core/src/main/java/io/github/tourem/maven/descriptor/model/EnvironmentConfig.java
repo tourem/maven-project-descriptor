@@ -13,6 +13,8 @@ import lombok.Builder;
  * @param actuatorBasePath Base path for Actuator endpoints (default: /actuator)
  * @param actuatorHealthPath Health check endpoint path (e.g., /actuator/health)
  * @param actuatorInfoPath Info endpoint path (e.g., /actuator/info)
+ * @author tourem
+
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)

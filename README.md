@@ -25,7 +25,7 @@ A Maven plugin that automatically generates comprehensive deployment descriptors
 ✅ **Dry-Run Mode**: Preview descriptor in console without generating files
 ✅ **HTML Documentation**: Generate readable HTML reports for non-technical teams
 ✅ **Post-Generation Hooks**: Execute custom scripts after descriptor generation
-- ✅ Container Images: Detect maintained Maven container plugins (Jib, Spring Boot build-image, Fabric8, Quarkus, Micronaut) and include image coordinates in the descriptor
+- ✅ Container Images: Detect maintained Maven container plugins (Jib, Spring Boot build-image, Fabric8, Quarkus, Micronaut, JKube) and include image coordinates in the descriptor
 
 
 ### 🎁 Bonus Features
@@ -48,7 +48,7 @@ Add the plugin to your project's `pom.xml`:
         <plugin>
             <groupId>io.github.tourem</groupId>
             <artifactId>descriptor-plugin</artifactId>
-            <version>1.2.2</version>
+            <version>1.3.0</version>
         </plugin>
     </plugins>
 </build>
@@ -57,7 +57,7 @@ Add the plugin to your project's `pom.xml`:
 Or use it directly without adding to POM:
 
 ```bash
-mvn io.github.tourem:descriptor-plugin:1.2.2:generate
+mvn io.github.tourem:descriptor-plugin:1.3.0:generate
 ```
 
 ### Basic Usage
@@ -65,7 +65,7 @@ mvn io.github.tourem:descriptor-plugin:1.2.2:generate
 Generate a deployment descriptor at your project root:
 
 ```bash
-mvn io.github.tourem:descriptor-plugin:1.2.2:generate
+mvn io.github.tourem:descriptor-plugin:1.3.0:generate
 ```
 
 This creates a `descriptor.json` file containing all deployment information.
@@ -76,20 +76,20 @@ The most common commands at a glance:
 
 ```bash
 # Default (descriptor.json at project root)
-mvn io.github.tourem:descriptor-plugin:1.2.2:generate
+mvn io.github.tourem:descriptor-plugin:1.3.0:generate
 
 # YAML or both JSON+YAML
-mvn io.github.tourem:descriptor-plugin:1.2.2:generate -Ddescriptor.exportFormat=yaml
-mvn io.github.tourem:descriptor-plugin:1.2.2:generate -Ddescriptor.exportFormat=both
+mvn io.github.tourem:descriptor-plugin:1.3.0:generate -Ddescriptor.exportFormat=yaml
+mvn io.github.tourem:descriptor-plugin:1.3.0:generate -Ddescriptor.exportFormat=both
 
 # Generate an HTML page for non-technical stakeholders
-mvn io.github.tourem:descriptor-plugin:1.2.2:generate -Ddescriptor.generateHtml=true
+mvn io.github.tourem:descriptor-plugin:1.3.0:generate -Ddescriptor.generateHtml=true
 
 # Attach a ZIP artifact for repository deployment
-mvn io.github.tourem:descriptor-plugin:1.2.2:generate -Ddescriptor.format=zip -Ddescriptor.attach=true
+mvn io.github.tourem:descriptor-plugin:1.3.0:generate -Ddescriptor.format=zip -Ddescriptor.attach=true
 
 # Dry-run (print summary, no files)
-mvn io.github.tourem:descriptor-plugin:1.2.2:generate -Ddescriptor.summary=true
+mvn io.github.tourem:descriptor-plugin:1.3.0:generate -Ddescriptor.summary=true
 ```
 ### POM Configuration
 
@@ -101,7 +101,7 @@ Configure the plugin to run automatically during the build:
         <plugin>
             <groupId>io.github.tourem</groupId>
             <artifactId>descriptor-plugin</artifactId>
-            <version>1.2.2</version>
+            <version>1.3.0</version>
             <configuration>
                 <!-- Output file name (default: descriptor.json) -->
                 <outputFile>deployment-info.json</outputFile>
@@ -191,7 +191,7 @@ The descriptor includes minimal build metadata (commit SHA, branch, CI info) for
 Generate a readable HTML report alongside the JSON/YAML descriptor:
 
 ```bash
-mvn io.github.tourem:descriptor-plugin:1.2.2:generate -Ddescriptor.generateHtml=true
+mvn io.github.tourem:descriptor-plugin:1.3.0:generate -Ddescriptor.generateHtml=true
 ```
 
 Screenshots:
@@ -224,7 +224,7 @@ The plugin automatically analyzes your Maven project and detects:
 - **Actuator Endpoints**: Health, info, metrics endpoints
 - **Maven Assembly**: Assembly descriptors, formats, repository paths
 - **Build Plugins**: spring-boot-maven-plugin, maven-assembly-plugin
-- **Container Images**: image coordinates (registry/group/name), tag(s), tool used (jib, spring-boot, fabric8, quarkus, micronaut), base or builder images when available
+- **Container Images**: image coordinates (registry/group/name), tag(s), tool used (jib, spring-boot, fabric8, quarkus, micronaut, jkube), base or builder images when available
 
 Example snippet in descriptor.json for a module:
 

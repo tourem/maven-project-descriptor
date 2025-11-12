@@ -20,6 +20,8 @@ import java.util.List;
  * @param deployableModulesCount Number of deployable modules
  * @param buildInfo Git and CI/CD metadata for traceability
  * @param mavenRepositoryUrl Base URL of the Maven repository (from distributionManagement)
+ * @author tourem
+
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)

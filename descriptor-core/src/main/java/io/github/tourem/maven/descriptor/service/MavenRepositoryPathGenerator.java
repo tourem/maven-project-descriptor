@@ -6,10 +6,12 @@ import lombok.extern.slf4j.Slf4j;
  * Service to generate Maven repository paths for artifacts.
  * Follows the standard Maven repository layout:
  * groupId/artifactId/version/artifactId-version[-classifier].extension
+ * @author tourem
+
  */
 @Slf4j
 public class MavenRepositoryPathGenerator {
-    
+
     /**
      * Generate the repository path for an artifact.
      *
@@ -21,27 +23,27 @@ public class MavenRepositoryPathGenerator {
      * @param classifier Optional classifier (e.g., "exec", "sources")
      * @return Repository path in format: com/larbotech/task/1.1.2-SNAPSHOT/task-1.1.2-SNAPSHOT.jar
      */
-    public String generatePath(String groupId, String artifactId, String version, 
+    public String generatePath(String groupId, String artifactId, String version,
                               String finalName, String packaging, String classifier) {
-        
+
         if (groupId == null || artifactId == null || version == null) {
             throw new IllegalArgumentException("groupId, artifactId, and version are required");
         }
-        
+
         // Convert groupId to path (replace dots with slashes)
         String groupPath = groupId.replace('.', '/');
-        
+
         // Build the artifact filename
         String filename = buildFilename(artifactId, version, finalName, packaging, classifier);
-        
+
         // Combine into full path
         String fullPath = String.format("%s/%s/%s/%s", groupPath, artifactId, version, filename);
-        
+
         log.debug("Generated repository path: {}", fullPath);
-        
+
         return fullPath;
     }
-    
+
     /**
      * Build the artifact filename.
      * Format: artifactId-version[-classifier].extension
@@ -66,18 +68,18 @@ public class MavenRepositoryPathGenerator {
         // Add extension
         return baseName + "." + extension;
     }
-    
+
     /**
      * Generate path using default final name (artifactId-version).
      */
     public String generatePath(String groupId, String artifactId, String version, String packaging) {
         return generatePath(groupId, artifactId, version, null, packaging, null);
     }
-    
+
     /**
      * Generate path with classifier but default final name.
      */
-    public String generatePathWithClassifier(String groupId, String artifactId, String version, 
+    public String generatePathWithClassifier(String groupId, String artifactId, String version,
                                             String packaging, String classifier) {
         return generatePath(groupId, artifactId, version, null, packaging, classifier);
     }

@@ -12,27 +12,29 @@ import java.util.List;
 
 /**
  * Framework detector for Spring Boot applications.
+ * @author tourem
+
  */
 @Slf4j
 public class SpringBootFrameworkDetector implements FrameworkDetector {
-    
+
     private final SpringBootDetector springBootDetector;
     private final SpringBootProfileDetector profileDetector;
     private final DeploymentMetadataDetector metadataDetector;
     private final EnvironmentConfigDetector environmentConfigDetector;
-    
+
     public SpringBootFrameworkDetector() {
         this.springBootDetector = new SpringBootDetector();
         this.profileDetector = new SpringBootProfileDetector();
         this.metadataDetector = new DeploymentMetadataDetector();
         this.environmentConfigDetector = new EnvironmentConfigDetector();
     }
-    
+
     @Override
     public String getFrameworkName() {
         return "Spring Boot";
     }
-    
+
     @Override
     public boolean isApplicable(Model model, Path modulePath) {
         return springBootDetector.isSpringBootExecutable(model);
@@ -67,7 +69,7 @@ public class SpringBootFrameworkDetector implements FrameworkDetector {
             }
         }
     }
-    
+
     @Override
     public int getPriority() {
         return 100; // High priority for Spring Boot

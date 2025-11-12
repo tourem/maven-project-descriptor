@@ -12,6 +12,8 @@ import java.util.List;
  * Information about a container image produced by this module.
  * This describes the image coordinates and useful build/publish hints
  * detected from popular container build plugins (Jib, Spring Boot, Fabric8, Quarkus, Micronaut).
+ * @author tourem
+
  */
 @Data
 @Builder

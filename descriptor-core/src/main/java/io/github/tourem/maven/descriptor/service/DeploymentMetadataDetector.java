@@ -14,6 +14,8 @@ import java.util.*;
 
 /**
  * Service to detect deployment-related metadata from Maven modules.
+ * @author tourem
+
  */
 @Slf4j
 public class DeploymentMetadataDetector {
@@ -22,7 +24,7 @@ public class DeploymentMetadataDetector {
     private static final String DEFAULT_ACTUATOR_BASE_PATH = "/actuator";
     private static final String HEALTH_ENDPOINT = "/health";
     private static final String INFO_ENDPOINT = "/info";
-    
+
     /**
      * Detect Java version from Maven compiler configuration.
      */
@@ -92,7 +94,7 @@ public class DeploymentMetadataDetector {
         log.debug("No Java version found, using default");
         return null;
     }
-    
+
     /**
      * Detect main class from Spring Boot plugin configuration.
      */
@@ -100,7 +102,7 @@ public class DeploymentMetadataDetector {
         if (model.getBuild() == null || model.getBuild().getPlugins() == null) {
             return null;
         }
-        
+
         for (Plugin plugin : model.getBuild().getPlugins()) {
             if ("spring-boot-maven-plugin".equals(plugin.getArtifactId())) {
                 Object config = plugin.getConfiguration();
@@ -113,10 +115,10 @@ public class DeploymentMetadataDetector {
                 }
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Detect server port from application configuration files.
      */
@@ -125,28 +127,28 @@ public class DeploymentMetadataDetector {
         if (!Files.exists(resourcesDir)) {
             return null;
         }
-        
+
         // Try application.properties
         Integer port = detectPortFromProperties(resourcesDir.resolve("application.properties"));
         if (port != null) {
             return port;
         }
-        
+
         // Try application.yml
         port = detectPortFromYaml(resourcesDir.resolve("application.yml"));
         if (port != null) {
             return port;
         }
-        
+
         // Try application.yaml
         port = detectPortFromYaml(resourcesDir.resolve("application.yaml"));
         if (port != null) {
             return port;
         }
-        
+
         return null;
     }
-    
+
     /**
      * Detect if Spring Boot Actuator is enabled.
      */
@@ -154,18 +156,18 @@ public class DeploymentMetadataDetector {
         if (model.getDependencies() == null) {
             return null;
         }
-        
+
         boolean hasActuator = model.getDependencies().stream()
                 .anyMatch(dep -> ACTUATOR_ARTIFACT_ID.equals(dep.getArtifactId()));
-        
+
         if (hasActuator) {
             log.debug("Spring Boot Actuator detected");
             return true;
         }
-        
+
         return null;
     }
-    
+
     /**
      * Detect local module dependencies (dependencies within the same project).
      */
@@ -249,7 +251,7 @@ public class DeploymentMetadataDetector {
         log.debug("Built Actuator info path: {}", path);
         return path;
     }
-    
+
     // Helper methods
 
     private String getProperty(Model model, String propertyName) {
@@ -277,7 +279,7 @@ public class DeploymentMetadataDetector {
 
         return null;
     }
-    
+
     private String extractJavaVersionFromPluginConfig(Object config) {
         if (config instanceof org.codehaus.plexus.util.xml.Xpp3Dom dom) {
             org.codehaus.plexus.util.xml.Xpp3Dom releaseNode = dom.getChild("release");
@@ -307,12 +309,12 @@ public class DeploymentMetadataDetector {
         }
         return null;
     }
-    
+
     private Integer detectPortFromProperties(Path propertiesFile) {
         if (!Files.exists(propertiesFile)) {
             return null;
         }
-        
+
         try (var inputStream = new FileInputStream(propertiesFile.toFile())) {
             Properties props = new Properties();
             props.load(inputStream);
@@ -325,10 +327,10 @@ public class DeploymentMetadataDetector {
         } catch (IOException | NumberFormatException e) {
             log.warn("Error reading port from properties file {}: {}", propertiesFile, e.getMessage());
         }
-        
+
         return null;
     }
-    
+
     @SuppressWarnings("unchecked")
     private Integer detectPortFromYaml(Path yamlFile) {
         if (!Files.exists(yamlFile)) {

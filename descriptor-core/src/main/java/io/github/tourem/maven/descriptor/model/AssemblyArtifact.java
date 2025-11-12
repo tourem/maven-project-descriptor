@@ -11,6 +11,8 @@ import lombok.Builder;
  * @param format Format of the assembly (zip, tar.gz, tar.bz2, etc.)
  * @param repositoryPath Path in Maven repository format (e.g., com/larbotech/task-batch/1.0-SNAPSHOT/task-batch-1.0-SNAPSHOT-conf-prd.zip)
  * @param repositoryUrl Full URL to the assembly in the Maven repository (if repository URL is configured)
+ * @author tourem
+
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)

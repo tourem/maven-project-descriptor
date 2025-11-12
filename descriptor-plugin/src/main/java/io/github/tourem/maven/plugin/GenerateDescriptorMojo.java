@@ -47,6 +47,8 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
  * - Environment-specific configurations
  * - Actuator endpoints
  * - Assembly artifacts
+ * @author tourem
+
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public class GenerateDescriptorMojo extends AbstractMojo {

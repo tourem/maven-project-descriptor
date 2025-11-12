@@ -4,6 +4,8 @@ import lombok.Getter;
 
 /**
  * Enum representing different Maven packaging types.
+ * @author tourem
+
  */
 @Getter
 public enum PackagingType {
@@ -14,13 +16,13 @@ public enum PackagingType {
     MAVEN_PLUGIN("maven-plugin"),
     EJB("ejb"),
     RAR("rar");
-    
+
     private final String type;
-    
+
     PackagingType(String type) {
         this.type = type;
     }
-    
+
     /**
      * Check if this packaging type is deployable.
      * POM and maven-plugin are not deployable.

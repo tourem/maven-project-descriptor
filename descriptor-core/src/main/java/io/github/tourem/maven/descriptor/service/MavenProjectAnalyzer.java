@@ -23,6 +23,8 @@ import java.util.stream.Stream;
 
 /**
  * Service to analyze Maven projects and extract deployable modules.
+ * @author tourem
+
  */
 @Slf4j
 public class MavenProjectAnalyzer {
@@ -75,7 +77,7 @@ public class MavenProjectAnalyzer {
 
         return detectors;
     }
-    
+
     /**
      * Analyze a Maven project and generate a descriptor.
      *
@@ -84,21 +86,21 @@ public class MavenProjectAnalyzer {
      */
     public ProjectDescriptor analyzeProject(Path projectRootPath) {
         log.info("Analyzing Maven project at: {}", projectRootPath);
-        
+
         if (!Files.exists(projectRootPath) || !Files.isDirectory(projectRootPath)) {
             throw new IllegalArgumentException("Invalid project path: " + projectRootPath);
         }
-        
+
         File rootPom = projectRootPath.resolve("pom.xml").toFile();
         if (!rootPom.exists()) {
             throw new IllegalArgumentException("No pom.xml found at: " + projectRootPath);
         }
-        
+
         try {
             Model rootModel = parsePom(rootPom);
             List<DeployableModule> deployableModules = new ArrayList<>();
             int totalModules = 0;
-            
+
             // Analyze root project
             totalModules++;
             DeployableModule rootModule = analyzeModule(rootModel, projectRootPath, projectRootPath, null);
@@ -125,7 +127,7 @@ public class MavenProjectAnalyzer {
                     }
                 }
             }
-            
+
             // Collect build info
             var buildInfo = gitInfoCollector.collectBuildInfo(projectRootPath);
 
@@ -165,13 +167,13 @@ public class MavenProjectAnalyzer {
                     .buildInfo(buildInfo)
                     .mavenRepositoryUrl(mavenRepositoryUrl)
                     .build();
-                    
+
         } catch (Exception e) {
             log.error("Error analyzing project: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to analyze Maven project", e);
         }
     }
-    
+
     /**
      * Recursively analyze nested modules.
      */
@@ -200,7 +202,7 @@ public class MavenProjectAnalyzer {
 
         return count;
     }
-    
+
     /**
      * Analyze a single module and determine if it's deployable.
      *
@@ -212,24 +214,24 @@ public class MavenProjectAnalyzer {
     private DeployableModule analyzeModule(Model model, Path modulePath, Path projectRoot, Model parentModel) {
         String packaging = model.getPackaging() != null ? model.getPackaging() : "jar";
         PackagingType packagingType = PackagingType.fromString(packaging);
-        
+
         log.debug("Analyzing module: {} with packaging: {}", model.getArtifactId(), packaging);
-        
+
         // Check if module is deployable
         if (!packagingType.isDeployable()) {
             log.debug("Module {} is not deployable (packaging: {})", model.getArtifactId(), packaging);
             return null;
         }
-        
+
         String groupId = resolveGroupId(model);
         String artifactId = model.getArtifactId();
         String version = resolveVersion(model);
-        
+
         // Detect Spring Boot executable
         boolean isSpringBoot = springBootDetector.isSpringBootExecutable(model);
         String finalName = determineFinalName(model, artifactId, version, isSpringBoot);
         String classifier = determineClassifier(model, isSpringBoot);
-        
+
         // Generate repository path
         String repositoryPath = pathGenerator.generatePath(groupId, artifactId, version,
                                                            finalName, packaging, classifier);
@@ -322,7 +324,7 @@ public class MavenProjectAnalyzer {
 
         return builder.build();
     }
-    
+
     /**
      * Parse a POM file into a Maven Model.
      */
@@ -332,7 +334,7 @@ public class MavenProjectAnalyzer {
             return reader.read(fileReader);
         }
     }
-    
+
     /**
      * Resolve groupId (may be inherited from parent).
      */
@@ -345,7 +347,7 @@ public class MavenProjectAnalyzer {
         }
         throw new IllegalStateException("Cannot resolve groupId for module: " + model.getArtifactId());
     }
-    
+
     /**
      * Resolve version (may be inherited from parent).
      */
@@ -398,11 +400,11 @@ public class MavenProjectAnalyzer {
         if (model.getBuild() != null && model.getBuild().getFinalName() != null) {
             return model.getBuild().getFinalName();
         }
-        
+
         // Default Maven final name
         return artifactId + "-" + version;
     }
-    
+
     /**
      * Determine classifier if any.
      * Spring Boot may add classifiers like "exec".
