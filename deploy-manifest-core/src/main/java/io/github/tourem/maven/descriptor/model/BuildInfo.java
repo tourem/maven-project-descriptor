@@ -55,6 +55,7 @@ public record BuildInfo(
     MavenRuntimeInfo maven,
     BuildProperties properties,
     ProfilesInfo profiles,
-    BuildGoals goals
+    BuildGoals goals,
+    PluginInfo plugins
 ) {}
 
