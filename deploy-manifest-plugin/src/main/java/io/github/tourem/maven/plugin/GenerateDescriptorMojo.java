@@ -277,6 +277,26 @@ public class GenerateDescriptorMojo extends AbstractMojo {
     @Parameter(property = "descriptor.includeOptional", defaultValue = "false")
     private boolean includeOptional;
 
+    // =============================
+    // Licenses Feature Options
+    // =============================
+
+    /** Enable licenses collection (disabled by default). */
+    @Parameter(property = "descriptor.includeLicenses", defaultValue = "false")
+    private boolean includeLicenses;
+
+    /** Generate warnings for incompatible/unknown licenses. */
+    @Parameter(property = "descriptor.licenseWarnings", defaultValue = "false")
+    private boolean licenseWarnings;
+
+    /** Comma-separated list of incompatible licenses (e.g., GPL-3.0,AGPL-3.0,SSPL). */
+    @Parameter(property = "descriptor.incompatibleLicenses", defaultValue = "GPL-3.0,AGPL-3.0,SSPL")
+    private String incompatibleLicenses;
+
+    /** Include transitive licenses (future use). */
+    @Parameter(property = "descriptor.includeTransitiveLicenses", defaultValue = "true")
+    private boolean includeTransitiveLicenses;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
@@ -314,7 +334,21 @@ public class GenerateDescriptorMojo extends AbstractMojo {
             }
             dtOptionsBuilder.scopes(scopeSet);
 
-            MavenProjectAnalyzer analyzer = new MavenProjectAnalyzer(dtOptionsBuilder.build());
+            // Licenses options
+            java.util.Set<String> licIncompatSet = new java.util.HashSet<>();
+            if (incompatibleLicenses != null && !incompatibleLicenses.isBlank()) {
+                for (String s : incompatibleLicenses.split(",")) {
+                    if (s != null && !s.isBlank()) licIncompatSet.add(s.trim());
+                }
+            }
+            var licOpts = io.github.tourem.maven.descriptor.model.LicenseOptions.builder()
+                .include(includeLicenses)
+                .licenseWarnings(licenseWarnings)
+                .includeTransitiveLicenses(includeTransitiveLicenses)
+                .incompatibleLicenses(licIncompatSet)
+                .build();
+
+            MavenProjectAnalyzer analyzer = new MavenProjectAnalyzer(dtOptionsBuilder.build(), licOpts);
             ProjectDescriptor descriptor = analyzer.analyzeProject(projectDir.toPath());
 
             // Validate descriptor if requested
@@ -1003,6 +1037,7 @@ public class GenerateDescriptorMojo extends AbstractMojo {
         html.append("        <div class=\"subtitle\">Deployment Descriptor</div>\n");
         html.append("        <div class=\"timestamp\">📅 Generated: ").append(descriptor.generatedAt()).append("</div>\n");
         html.append("      </div>\n");
+
         html.append("      <button class=\"theme-toggle\" onclick=\"toggleTheme()\" title=\"Toggle Dark/Light Mode\">\n");
         html.append("        <span class=\"theme-icon\">🌙</span>\n");
         html.append("      </button>\n");
@@ -1038,6 +1073,8 @@ public class GenerateDescriptorMojo extends AbstractMojo {
         html.append("      <button class=\"tab\" onclick=\"showTab(this, 'dependencies')\">🧩 Dependencies</button>\n");
 
         html.append("      <button class=\"tab\" onclick=\"showTab(this, 'environments')\">🌍 Environments</button>\n");
+        html.append("      <button class=\"tab\" onclick=\"showTab(this, 'compliance')\">⚖️ Compliance</button>\n");
+
         html.append("      <button class=\"tab\" onclick=\"showTab(this, 'assemblies')\">📚 Assemblies</button>\n");
         html.append("    </div>\n");
 
@@ -1703,6 +1740,97 @@ d af f CSV</button>\\n");
         html.append("    </div>\n");
 
 
+        // Tab 4: Compliance (Licenses)
+        html.append("    <div id=\"compliance\" class=\"tab-content\">\n");
+        if (descriptor.deployableModules() != null && !descriptor.deployableModules().isEmpty()) {
+            boolean hasLic = descriptor.deployableModules().stream()
+                .anyMatch(m -> m.getLicenses() != null);
+            if (hasLic) {
+                descriptor.deployableModules().forEach(module -> {
+                    var lic = module.getLicenses();
+                    if (lic != null) {
+                        html.append("      <div class=\"module-card\">\n");
+                        html.append("        <div class=\"module-header\">\n");
+                        html.append("          <div class=\"module-title\">");
+                        html.append("⚖️ Compliance — ").append(escapeHtml(module.getArtifactId()));
+                        html.append("</div>\n");
+                        html.append("        </div>\n");
+
+                        // Summary
+                        var sum = lic.getSummary();
+                        if (sum != null) {
+                            html.append("        <div class=\"info-grid\">\n");
+                            html.append("          <div class=\"info-item\"><div class=\"info-label\">Total</div><div class=\"info-value\"><strong>")
+                               .append(sum.getTotal()).append("</strong></div></div>\n");
+                            html.append("          <div class=\"info-item\"><div class=\"info-label\">Identified</div><div class=\"info-value\"><strong>")
+                               .append(sum.getIdentified()).append("</strong></div></div>\n");
+                            html.append("          <div class=\"info-item\"><div class=\"info-label\">Unknown</div><div class=\"info-value\"><strong>")
+                               .append(sum.getUnknown()).append("</strong></div></div>\n");
+                            html.append("        </div>\n");
+                        }
+
+                        // Warnings
+                        if (lic.getWarnings() != null && !lic.getWarnings().isEmpty()) {
+                            html.append("        <div class=\"table-container\">\n");
+                            html.append("          <div class=\"section-header\">⚠️ Warnings</div>\n");
+                            html.append("          <table>\n");
+                            html.append("            <tr><th>Severity</th><th>Artifact</th><th>License</th><th>Reason</th><th>Recommendation</th></tr>\n");
+                            for (var w : lic.getWarnings()) {
+                                html.append("            <tr>\n");
+                                html.append("              <td>").append(escapeHtml(String.valueOf(w.getSeverity()))).append("</td>\n");
+                                html.append("              <td>").append(escapeHtml(String.valueOf(w.getArtifact()))).append("</td>\n");
+                                html.append("              <td>").append(escapeHtml(String.valueOf(w.getLicense()))).append("</td>\n");
+                                html.append("              <td>").append(escapeHtml(String.valueOf(w.getReason()))).append("</td>\n");
+                                html.append("              <td>").append(escapeHtml(String.valueOf(w.getRecommendation()))).append("</td>\n");
+                                html.append("            </tr>\n");
+                            }
+                            html.append("          </table>\n");
+                            html.append("        </div>\n");
+                        }
+
+                        // Details
+                        if (lic.getDetails() != null && !lic.getDetails().isEmpty()) {
+                            html.append("        <div class=\"table-container\">\n");
+                            html.append("          <div class=\"section-header\">📄 License Details</div>\n");
+                            html.append("          <table>\n");
+                            html.append("            <tr><th>Group</th><th>Artifact</th><th>Version</th><th>Scope</th><th>License</th><th>URL</th><th>Depth</th></tr>\n");
+                            for (var d : lic.getDetails()) {
+                                html.append("            <tr>\n");
+                                html.append("              <td>").append(escapeHtml(String.valueOf(d.getGroupId()))).append("</td>\n");
+                                html.append("              <td><strong>").append(escapeHtml(String.valueOf(d.getArtifactId()))).append("</strong></td>\n");
+                                html.append("              <td><code>").append(escapeHtml(String.valueOf(d.getVersion()))).append("</code></td>\n");
+                                html.append("              <td>").append(escapeHtml(String.valueOf(d.getScope()))).append("</td>\n");
+                                html.append("              <td>").append(escapeHtml(String.valueOf(d.getLicense()))).append("</td>\n");
+                                String url = d.getLicenseUrl()==null?"":d.getLicenseUrl();
+                                if (url.isBlank()) {
+                                    html.append("              <td>-</td>\n");
+                                } else {
+                                    html.append("              <td><a href=\"").append(escapeHtml(url)).append("\" target=\"_blank\">link</a></td>\n");
+                                }
+                                html.append("              <td>").append(String.valueOf(d.getDepth()==null?1:d.getDepth())).append("</td>\n");
+                                html.append("            </tr>\n");
+                            }
+                            html.append("          </table>\n");
+                            html.append("        </div>\n");
+                        }
+                        html.append("      </div>\n");
+                    }
+                });
+            } else {
+                html.append("      <div class=\"empty-state\">\n");
+                html.append("        <div class=\"empty-state-icon\">⚖️</div>\n");
+                html.append("        <p>No license information collected. Enable with -Ddescriptor.includeLicenses=true</p>\n");
+                html.append("      </div>\n");
+            }
+        } else {
+            html.append("      <div class=\"empty-state\">\n");
+            html.append("        <div class=\"empty-state-icon\">📦</div>\n");
+            html.append("        <p>No deployable modules found</p>\n");
+            html.append("      </div>\n");
+        }
+        html.append("    </div>\n");
+
+
         // Tab 4: Environments
         html.append("    <div id=\"environments\" class=\"tab-content\">\n");
         if (descriptor.deployableModules() != null && !descriptor.deployableModules().isEmpty()) {
@@ -2206,6 +2334,7 @@ d af f CSV</button>\\n");
             // Set environment variable with generated file path
             pb.environment().put("DESCRIPTOR_FILE", generatedFile.toAbsolutePath().toString());
             pb.environment().put("PROJECT_NAME", project.getName());
+
             pb.environment().put("PROJECT_VERSION", project.getVersion());
 
             pb.redirectErrorStream(true);

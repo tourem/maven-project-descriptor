@@ -42,6 +42,8 @@ public class MavenProjectAnalyzer {
     private final DockerImageDetector dockerImageDetector;
     private final DependencyTreeCollector dependencyTreeCollector;
     private final io.github.tourem.maven.descriptor.model.DependencyTreeOptions dependencyTreeOptions;
+    private final LicenseCollector licenseCollector;
+    private final io.github.tourem.maven.descriptor.model.LicenseOptions licenseOptions;
 
     /**
      * Default constructor that initializes all dependencies.
@@ -61,6 +63,14 @@ public class MavenProjectAnalyzer {
      * Constructor allowing dependency tree options to be provided by the plugin.
      */
     public MavenProjectAnalyzer(io.github.tourem.maven.descriptor.model.DependencyTreeOptions options) {
+        this(options, io.github.tourem.maven.descriptor.model.LicenseOptions.builder().include(false).build());
+    }
+
+    /**
+     * Constructor allowing dependency tree and license options to be provided by the plugin.
+     */
+    public MavenProjectAnalyzer(io.github.tourem.maven.descriptor.model.DependencyTreeOptions depOptions,
+                                io.github.tourem.maven.descriptor.model.LicenseOptions licenseOptions) {
         this.pathGenerator = new MavenRepositoryPathGenerator();
         this.springBootDetector = new SpringBootDetector();
         this.profileDetector = new SpringBootProfileDetector();
@@ -73,7 +83,9 @@ public class MavenProjectAnalyzer {
         this.frameworkDetectors = loadFrameworkDetectors();
         this.dockerImageDetector = new DockerImageDetector();
         this.dependencyTreeCollector = new DependencyTreeCollector();
-        this.dependencyTreeOptions = options != null ? options : io.github.tourem.maven.descriptor.model.DependencyTreeOptions.builder().include(false).build();
+        this.dependencyTreeOptions = depOptions != null ? depOptions : io.github.tourem.maven.descriptor.model.DependencyTreeOptions.builder().include(false).build();
+        this.licenseCollector = new LicenseCollector();
+        this.licenseOptions = licenseOptions != null ? licenseOptions : io.github.tourem.maven.descriptor.model.LicenseOptions.builder().include(false).build();
     }
 
     /**
@@ -324,6 +336,17 @@ public class MavenProjectAnalyzer {
             log.debug("Dependency tree collection failed for {}:{} - {}", groupId, artifactId, e.getMessage());
         }
 
+        // License collection (optional, can apply to any deployable module)
+        io.github.tourem.maven.descriptor.model.LicenseInfo licenseInfo = null;
+        try {
+            boolean collectLicenses = licenseOptions != null && licenseOptions.isInclude();
+            if (collectLicenses) {
+                licenseInfo = licenseCollector.collect(model, modulePath, licenseOptions);
+            }
+        } catch (Exception e) {
+            log.debug("License collection failed for {}:{} - {}", groupId, artifactId, e.getMessage());
+        }
+
         DeployableModule.DeployableModuleBuilder builder = DeployableModule.builder()
                 .groupId(groupId)
                 .artifactId(artifactId)
@@ -342,7 +365,8 @@ public class MavenProjectAnalyzer {
                 .buildPlugins(buildPlugins)
                 .executableInfo(executableInfo)
                 .container(containerInfo)
-                .dependencies(dependencyTreeInfo);
+                .dependencies(dependencyTreeInfo)
+                .licenses(licenseInfo);
 
         // Apply framework detectors via SPI
         for (FrameworkDetector detector : frameworkDetectors) {
