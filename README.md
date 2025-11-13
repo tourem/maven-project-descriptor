@@ -177,6 +177,16 @@ mvn io.github.tourem:deploy-manifest-plugin:2.0.0:generate -Ddescriptor.format=z
 # Dry-run (print summary, no files)
 mvn io.github.tourem:deploy-manifest-plugin:2.0.0:generate -Ddescriptor.summary=true
 ```
+
+### Options cheat sheet
+
+- `-Ddescriptor.summary=true` — Dry-run (prints dashboard, no files)
+- `-Ddescriptor.generateHtml=true` — Generate the HTML report
+- `-Ddescriptor.exportFormat=yaml|both` — Export YAML or both JSON+YAML
+- `-Ddescriptor.outputFile=deployment-info.json` — Override output filename
+- `-Ddescriptor.attach=true [-Ddescriptor.format=zip]` — Attach artifact for repository deployment
+- `-Ddescriptor.includeDependencyTree=true [-Ddescriptor.dependencyTreeFormat=both]` — Include dependencies (Flat+Tree)
+
 ### POM Configuration
 
 Configure the plugin to run automatically during the build:
