@@ -47,6 +47,13 @@
       <version>3.3.0</version>
     </dependency>
 
+    <!-- Maven Shared: Dependency Analyzer (used/unused/undeclared) -->
+    <dependency>
+      <groupId>org.apache.maven.shared</groupId>
+      <artifactId>maven-dependency-analyzer</artifactId>
+      <version>1.16.0</version>
+    </dependency>
+
     <!-- Lombok -->
     <dependency>
       <groupId>org.projectlombok</groupId>
