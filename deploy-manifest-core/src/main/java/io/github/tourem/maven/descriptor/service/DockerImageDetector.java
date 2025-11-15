@@ -86,6 +86,12 @@ public class DockerImageDetector {
             if (info != null) return info;
         }
 
+        // Fallback: detect Dockerfile in module directory
+        ContainerInfo dockerfileInfo = detectDockerfile(model, modulePath);
+        if (dockerfileInfo != null) {
+            return dockerfileInfo;
+        }
+
         return null;
     }
 
@@ -153,6 +159,11 @@ public class DockerImageDetector {
             String builder = getNestedValue(cfg, "image", "builder");
             String runImage = getNestedValue(cfg, "image", "runImage");
             Boolean publish = getNestedBoolean(cfg, "image", "publish");
+
+            // Only return ContainerInfo if at least one image configuration is present
+            if (name == null && (tags == null || tags.isEmpty()) && builder == null && runImage == null && publish == null) {
+                return null;
+            }
 
             String registry = null, group = null;
             if (name != null) {
@@ -374,6 +385,65 @@ public class DockerImageDetector {
                     .build();
         } catch (Exception e) {
             log.debug("Error detecting Micronaut container config", e);
+            return null;
+        }
+    }
+
+    // ---------------- Dockerfile Detection ----------------
+    /**
+     * Detects presence of Dockerfile in the module directory and parses basic information.
+     * This is a fallback when no Maven plugin is configured.
+     */
+    private ContainerInfo detectDockerfile(Model model, Path modulePath) {
+        try {
+            // Check for Dockerfile in module directory
+            Path dockerfilePath = modulePath.resolve("Dockerfile");
+            if (!Files.exists(dockerfilePath)) {
+                return null;
+            }
+
+            log.debug("Dockerfile detected at: {}", dockerfilePath);
+
+            // Parse Dockerfile to extract basic information
+            List<String> lines = Files.readAllLines(dockerfilePath);
+            String baseImage = null;
+            List<String> exposedPorts = new ArrayList<>();
+            List<String> labels = new ArrayList<>();
+
+            for (String line : lines) {
+                String trimmed = line.trim();
+
+                // Extract FROM instruction (base image)
+                if (trimmed.startsWith("FROM ") && baseImage == null) {
+                    baseImage = trimmed.substring(5).trim().split("\\s+")[0];
+                }
+
+                // Extract EXPOSE instructions (ports)
+                if (trimmed.startsWith("EXPOSE ")) {
+                    String ports = trimmed.substring(7).trim();
+                    exposedPorts.addAll(Arrays.asList(ports.split("\\s+")));
+                }
+
+                // Extract LABEL instructions
+                if (trimmed.startsWith("LABEL ")) {
+                    labels.add(trimmed.substring(6).trim());
+                }
+            }
+
+            // Build a minimal ContainerInfo
+            // Use artifactId as image name by default
+            String imageName = model.getArtifactId();
+            String tag = model.getVersion();
+
+            return ContainerInfo.builder()
+                    .tool("dockerfile")
+                    .image(imageName)
+                    .tag(tag)
+                    .baseImage(baseImage)
+                    .build();
+
+        } catch (Exception e) {
+            log.debug("Error detecting Dockerfile", e);
             return null;
         }
     }
