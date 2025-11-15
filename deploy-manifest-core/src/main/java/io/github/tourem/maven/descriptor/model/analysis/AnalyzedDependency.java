@@ -26,6 +26,9 @@ public class AnalyzedDependency {
     @Builder.Default
     private Metadata metadata = null;
 
+    // Available versions (max 3 newer versions after current version)
+    private java.util.List<String> availableVersions;
+
     @Data
     @Builder
     @NoArgsConstructor

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.github.tourem.maven.descriptor.model.analysis.AnalyzedDependency;
 import io.github.tourem.maven.descriptor.model.analysis.DependencyAnalysisResult;
+import io.github.tourem.maven.descriptor.service.DependencyVersionLookup;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -78,6 +79,16 @@ public class AnalyzeDependenciesMojo extends AbstractMojo {
     @Parameter(property = "descriptor.generateHtml", defaultValue = "true")
     private boolean generateHtml;
 
+    // Phase 1.5: Version lookup
+    @Parameter(property = "descriptor.lookupAvailableVersions", defaultValue = "true")
+    private boolean lookupAvailableVersions;
+
+    @Parameter(property = "descriptor.maxAvailableVersions", defaultValue = "3")
+    private int maxAvailableVersions;
+
+    @Parameter(property = "descriptor.versionLookupTimeoutMs", defaultValue = "5000")
+    private int versionLookupTimeoutMs;
+
     @Override
     public void execute() throws MojoExecutionException {
         try {
@@ -113,6 +124,10 @@ public class AnalyzeDependenciesMojo extends AbstractMojo {
             }
             if (handleFalsePositives) {
                 detectFalsePositives(unused);
+            }
+            if (lookupAvailableVersions) {
+                enrichWithAvailableVersions(unused);
+                enrichWithAvailableVersions(undeclared);
             }
             List<io.github.tourem.maven.descriptor.model.analysis.Recommendation> recs = null;
             if (generateRecommendations) {
@@ -296,6 +311,48 @@ public class AnalyzeDependenciesMojo extends AbstractMojo {
                 d.setSuspectedFalsePositive(false);
                 d.setConfidence(0.9);
             }
+        }
+    }
+
+    /**
+     * Enrich dependencies with available versions from configured repositories.
+     */
+    private void enrichWithAvailableVersions(List<AnalyzedDependency> dependencies) {
+        if (dependencies == null || dependencies.isEmpty()) {
+            return;
+        }
+
+        try {
+            // Create version lookup service using project's Maven model
+            DependencyVersionLookup versionLookup = new DependencyVersionLookup(
+                    project.getModel(),
+                    versionLookupTimeoutMs
+            );
+
+            for (AnalyzedDependency dep : dependencies) {
+                try {
+                    List<String> availableVersions = versionLookup.lookupAvailableVersions(
+                            dep.getGroupId(),
+                            dep.getArtifactId(),
+                            dep.getVersion(),
+                            maxAvailableVersions
+                    );
+
+                    if (availableVersions != null && !availableVersions.isEmpty()) {
+                        dep.setAvailableVersions(availableVersions);
+                        getLog().debug(String.format("Found %d available versions for %s:%s:%s",
+                                availableVersions.size(),
+                                dep.getGroupId(),
+                                dep.getArtifactId(),
+                                dep.getVersion()));
+                    }
+                } catch (Exception e) {
+                    getLog().debug("Failed to lookup versions for " + dep.getGroupId() + ":" +
+                                   dep.getArtifactId() + ": " + e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            getLog().warn("Failed to initialize version lookup: " + e.getMessage());
         }
     }
 
