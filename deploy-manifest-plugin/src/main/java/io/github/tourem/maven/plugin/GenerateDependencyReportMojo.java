@@ -277,6 +277,14 @@ public class GenerateDependencyReportMojo extends AbstractMojo {
         // Code
         html.append("code { background: #2d2d2d; color: #f8f8f2; padding: 4px 8px; border-radius: 5px; font-family: 'Courier New', monospace; font-size: 0.9em; }\n");
 
+        // Version highlighting
+        html.append(".version-current { background: #3b82f61a; color: #3b82f6; padding: 4px 8px; border-radius: 5px; font-weight: bold; }\n");
+        html.append(".version-available { background: #10b9811a; color: #10b981; padding: 4px 8px; border-radius: 5px; }\n");
+        html.append(".version-latest { background: #8b5cf61a; color: #8b5cf6; padding: 4px 8px; border-radius: 5px; font-weight: bold; }\n");
+        html.append(".version-outdated { background: #ef44441a; color: #ef4444; padding: 4px 8px; border-radius: 5px; font-weight: bold; }\n");
+        html.append(".update-alert { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 10px; margin: 10px 0; border-radius: 5px; }\n");
+        html.append(".update-critical { background: #fee2e2; border-left: 4px solid #ef4444; padding: 10px; margin: 10px 0; border-radius: 5px; }\n");
+
         html.append("</style>\n</head>\n<body>\n");
         html.append("<div class=\"container\">\n");
 
@@ -312,6 +320,7 @@ public class GenerateDependencyReportMojo extends AbstractMojo {
         }
         if (report.getAnalysis() != null) {
             html.append("<button class=\"tab\" onclick=\"showTab(this, 'analysis')\">🔍 Analysis</button>\n");
+            html.append("<button class=\"tab\" onclick=\"showTab(this, 'updates')\">🔄 Available Updates</button>\n");
         }
         if (report.getPlugins() != null) {
             html.append("<button class=\"tab\" onclick=\"showTab(this, 'plugins')\">🔌 Plugins</button>\n");
@@ -339,6 +348,7 @@ public class GenerateDependencyReportMojo extends AbstractMojo {
         // Continue with other tabs...
         writeHtmlDependenciesTab(html, report);
         writeHtmlAnalysisTab(html, report);
+        writeHtmlAvailableUpdatesTab(html, report);
         writeHtmlPluginsTab(html, report);
 
         // JavaScript
@@ -428,6 +438,129 @@ public class GenerateDependencyReportMojo extends AbstractMojo {
         }
 
         html.append("</div>\n");
+    }
+
+    private void writeHtmlAvailableUpdatesTab(StringBuilder html, DependencyReport report) {
+        if (report.getAnalysis() == null || report.getAnalysis().getRawResults() == null) return;
+
+        html.append("<div id=\"updates\" class=\"tab-content\">\n");
+        html.append("<div class=\"section-header\">🔄 Available Dependency Updates</div>\n");
+
+        // Collect all dependencies with available versions
+        var allDependencies = new java.util.ArrayList<io.github.tourem.maven.descriptor.model.analysis.AnalyzedDependency>();
+
+        if (report.getAnalysis().getRawResults().getUnused() != null) {
+            allDependencies.addAll(report.getAnalysis().getRawResults().getUnused());
+        }
+        if (report.getAnalysis().getRawResults().getUndeclared() != null) {
+            allDependencies.addAll(report.getAnalysis().getRawResults().getUndeclared());
+        }
+
+        // Filter dependencies with available versions
+        var depsWithUpdates = allDependencies.stream()
+            .filter(dep -> dep.getAvailableVersions() != null && !dep.getAvailableVersions().isEmpty())
+            .sorted((a, b) -> {
+                String keyA = a.getGroupId() + ":" + a.getArtifactId();
+                String keyB = b.getGroupId() + ":" + b.getArtifactId();
+                return keyA.compareTo(keyB);
+            })
+            .collect(java.util.stream.Collectors.toList());
+
+        if (depsWithUpdates.isEmpty()) {
+            html.append("<div class=\"update-alert\">ℹ️ No version information available. Run with <code>-Ddescriptor.lookupAvailableVersions=true</code> to fetch available versions.</div>\n");
+        } else {
+            html.append("<p>📋 <strong>").append(depsWithUpdates.size()).append("</strong> dependencies with available updates</p>\n");
+
+            html.append("<div class=\"table-container\"><table>\n");
+            html.append("<tr><th>Dependency</th><th>Current Version</th><th>Available Versions</th><th>Latest Version</th><th>Status</th></tr>\n");
+
+            for (var dep : depsWithUpdates) {
+                String currentVersion = dep.getVersion();
+                var availableVersions = dep.getAvailableVersions();
+                String latestVersion = availableVersions.isEmpty() ? currentVersion : availableVersions.get(availableVersions.size() - 1);
+
+                // Determine if update is critical (major version difference)
+                boolean isCritical = isMajorVersionDifference(currentVersion, latestVersion);
+
+                html.append("<tr>");
+
+                // Dependency name
+                html.append("<td><strong>").append(escapeHtml(dep.getArtifactId())).append("</strong><br>");
+                html.append("<small style=\"color: #666;\">").append(escapeHtml(dep.getGroupId())).append("</small></td>");
+
+                // Current version
+                html.append("<td><span class=\"").append(isCritical ? "version-outdated" : "version-current").append("\">")
+                    .append(escapeHtml(currentVersion)).append("</span></td>");
+
+                // Available versions (max 3)
+                html.append("<td>");
+                int count = 0;
+                for (String version : availableVersions) {
+                    if (count >= 3) break;
+                    if (count > 0) html.append("<br>");
+                    html.append("<span class=\"version-available\">").append(escapeHtml(version)).append("</span>");
+                    count++;
+                }
+                if (availableVersions.size() > 3) {
+                    html.append("<br><small style=\"color: #666;\">... and ").append(availableVersions.size() - 3).append(" more</small>");
+                }
+                html.append("</td>");
+
+                // Latest version
+                html.append("<td><span class=\"version-latest\">").append(escapeHtml(latestVersion)).append("</span></td>");
+
+                // Status
+                html.append("<td>");
+                if (isCritical) {
+                    html.append("<span class=\"badge badge-error\">⚠️ Major Update</span>");
+                } else if (!currentVersion.equals(latestVersion)) {
+                    html.append("<span class=\"badge badge-warn\">Update Available</span>");
+                } else {
+                    html.append("<span class=\"badge badge-ok\">Up to Date</span>");
+                }
+                html.append("</td>");
+
+                html.append("</tr>\n");
+            }
+
+            html.append("</table></div>\n");
+
+            // Summary
+            long criticalUpdates = depsWithUpdates.stream()
+                .filter(dep -> isMajorVersionDifference(dep.getVersion(),
+                    dep.getAvailableVersions().isEmpty() ? dep.getVersion() :
+                    dep.getAvailableVersions().get(dep.getAvailableVersions().size() - 1)))
+                .count();
+
+            if (criticalUpdates > 0) {
+                html.append("<div class=\"update-critical\">");
+                html.append("⚠️ <strong>").append(criticalUpdates).append("</strong> dependencies have major version updates available. ");
+                html.append("Review these updates carefully as they may contain breaking changes.");
+                html.append("</div>\n");
+            }
+        }
+
+        html.append("</div>\n");
+    }
+
+    private boolean isMajorVersionDifference(String currentVersion, String latestVersion) {
+        if (currentVersion == null || latestVersion == null) return false;
+        if (currentVersion.equals(latestVersion)) return false;
+
+        try {
+            // Extract major version numbers
+            String currentMajor = currentVersion.split("[.-]")[0];
+            String latestMajor = latestVersion.split("[.-]")[0];
+
+            int current = Integer.parseInt(currentMajor);
+            int latest = Integer.parseInt(latestMajor);
+
+            // Consider it critical if major version differs by 1 or more
+            return (latest - current) >= 1;
+        } catch (Exception e) {
+            // If we can't parse versions, assume it's not critical
+            return false;
+        }
     }
 
     private void writeHtmlPluginsTab(StringBuilder html, DependencyReport report) {
