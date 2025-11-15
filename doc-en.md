@@ -36,7 +36,7 @@ This guide explains how to install, run, and get the most out of `io.github.tour
 Run without modifying the POM:
 
 ```bash
-mvn io.github.tourem:deploy-manifest-plugin:2.3.1:generate -Ddescriptor.generateHtml=true
+mvn io.github.tourem:deploy-manifest-plugin:2.4.0:generate -Ddescriptor.generateHtml=true
 ```
 
 POM configuration for reproducible builds:
@@ -47,7 +47,7 @@ POM configuration for reproducible builds:
     <plugin>
       <groupId>io.github.tourem</groupId>
       <artifactId>deploy-manifest-plugin</artifactId>
-      <version>2.3.1</version>
+      <version>2.4.0</version>
       <executions>
         <execution>
           <id>generate-deploy-manifest</id>
@@ -167,6 +167,13 @@ mvn io.github.tourem:deploy-manifest-plugin:2.4.0:analyze-dependencies
 # Generated results
 # - target/dependency-analysis.json (full report)
 # - target/dependency-analysis.html (interactive dashboard)
+
+# Comprehensive dependency & plugin report
+mvn io.github.tourem:deploy-manifest-plugin:2.4.0:dependency-report
+
+# Generated results
+# - target/dependency-report.json (consolidated report)
+# - target/dependency-report.html (complete dashboard ~20K)
 ```
 
 **JSON output**:
@@ -275,37 +282,37 @@ mvn io.github.tourem:deploy-manifest-plugin:2.4.0:analyze-dependencies
 
 Minimal JSON:
 ```bash
-mvn io.github.tourem:deploy-manifest-plugin:2.3.1:generate
+mvn io.github.tourem:deploy-manifest-plugin:2.4.0:generate
 ```
 
 JSON + YAML + HTML:
 ```bash
-mvn io.github.tourem:deploy-manifest-plugin:2.3.1:generate -Ddescriptor.exportFormat=both -Ddescriptor.generateHtml=true
+mvn io.github.tourem:deploy-manifest-plugin:2.4.0:generate -Ddescriptor.exportFormat=both -Ddescriptor.generateHtml=true
 ```
 
 Dependency tree (Tree+Flat) with compile+runtime scopes:
 ```bash
-mvn io.github.tourem:deploy-manifest-plugin:2.3.1:generate -Ddescriptor.includeDependencyTree=true -Ddescriptor.dependencyTreeFormat=both -Ddescriptor.dependencyScopes=compile,runtime
+mvn io.github.tourem:deploy-manifest-plugin:2.4.0:generate -Ddescriptor.includeDependencyTree=true -Ddescriptor.dependencyTreeFormat=both -Ddescriptor.dependencyScopes=compile,runtime
 ```
 
 Licenses with warnings and custom incompatible list:
 ```bash
-mvn io.github.tourem:deploy-manifest-plugin:2.3.1:generate -Ddescriptor.licenseWarnings=true -Ddescriptor.incompatibleLicenses=GPL-3.0,AGPL-3.0,SSPL
+mvn io.github.tourem:deploy-manifest-plugin:2.4.0:generate -Ddescriptor.licenseWarnings=true -Ddescriptor.incompatibleLicenses=GPL-3.0,AGPL-3.0,SSPL
 ```
 
 Properties including environment variables:
 ```bash
-mvn io.github.tourem:deploy-manifest-plugin:2.3.1:generate -Ddescriptor.includeProperties=true -Ddescriptor.includeEnvironmentVariables=true
+mvn io.github.tourem:deploy-manifest-plugin:2.4.0:generate -Ddescriptor.includeProperties=true -Ddescriptor.includeEnvironmentVariables=true
 ```
 
 Plugins with configuration and update checks:
 ```bash
-mvn io.github.tourem:deploy-manifest-plugin:2.3.1:generate -Ddescriptor.includePlugins=true -Ddescriptor.includePluginConfiguration=true -Ddescriptor.checkPluginUpdates=true -Ddescriptor.generateHtml=true
+mvn io.github.tourem:deploy-manifest-plugin:2.4.0:generate -Ddescriptor.includePlugins=true -Ddescriptor.includePluginConfiguration=true -Ddescriptor.checkPluginUpdates=true -Ddescriptor.generateHtml=true
 ```
 
 Combine everything:
 ```bash
-mvn io.github.tourem:deploy-manifest-plugin:2.3.1:generate \
+mvn io.github.tourem:deploy-manifest-plugin:2.4.0:generate \
   -Ddescriptor.exportFormat=both -Ddescriptor.generateHtml=true \
   -Ddescriptor.includeDependencyTree=true -Ddescriptor.dependencyTreeFormat=both \
   -Ddescriptor.includeLicenses=true -Ddescriptor.licenseWarnings=true \
@@ -318,7 +325,7 @@ POM configuration (common excerpt):
 <plugin>
   <groupId>io.github.tourem</groupId>
   <artifactId>deploy-manifest-plugin</artifactId>
-  <version>2.3.1</version>
+  <version>2.4.0</version>
   <configuration>
     <exportFormat>both</exportFormat>
     <generateHtml>true</generateHtml>
@@ -416,7 +423,7 @@ Plugins:
 GitHub Actions (excerpt):
 ```yaml
 - name: Generate Deploy Manifest
-  run: mvn -B io.github.tourem:deploy-manifest-plugin:2.3.1:generate -Ddescriptor.exportFormat=both -Ddescriptor.generateHtml=true
+  run: mvn -B io.github.tourem:deploy-manifest-plugin:2.4.0:generate -Ddescriptor.exportFormat=both -Ddescriptor.generateHtml=true
 - name: Upload artifacts
   uses: actions/upload-artifact@v4
   with:
