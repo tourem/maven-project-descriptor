@@ -118,14 +118,11 @@ Watch the plugin in action with complete walkthroughs:
 
 **🇫🇷 Version Française:**
 
-[📹 Voir la vidéo de démonstration en français](videos/Maven_Deploy_Manifest_Plugin_fr.mp4)
+[![Démonstration en Français](https://img.youtube.com/vi/CLNUvOquHas/maxresdefault.jpg)](https://youtu.be/CLNUvOquHas)
 
 **🇬🇧 English Version:**
 
-[📹 Watch the English demonstration video](videos/Maven_Deploy_Manifest_Plugin_eng.mp4)
-
-> **Note:** Click the links above to download and watch the full demonstration videos.
-> Videos are stored with Git LFS (30-33 MB each).
+[![English Demonstration](https://img.youtube.com/vi/4CWSKUi2Ys4/maxresdefault.jpg)](https://youtu.be/4CWSKUi2Ys4)
 
 ---
 
