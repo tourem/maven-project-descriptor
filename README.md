@@ -114,15 +114,30 @@ mvn io.github.tourem:deploy-manifest-plugin:2.6.0:generate -Ddescriptor.generate
 
 ### 🎥 Video Demonstrations
 
-Watch the plugin in action with complete walkthroughs:
+Watch complete walkthroughs showcasing all features in action:
 
-**🇫🇷 Version Française:**
+<table>
+<tr>
+<td width="50%" align="center">
+
+**🇫🇷 Démonstration en Français**
 
 [![Démonstration en Français](https://img.youtube.com/vi/CLNUvOquHas/maxresdefault.jpg)](https://youtu.be/CLNUvOquHas)
 
-**🇬🇧 English Version:**
+[▶️ Regarder sur YouTube](https://youtu.be/CLNUvOquHas)
+
+</td>
+<td width="50%" align="center">
+
+**🇬🇧 English Demonstration**
 
 [![English Demonstration](https://img.youtube.com/vi/4CWSKUi2Ys4/maxresdefault.jpg)](https://youtu.be/4CWSKUi2Ys4)
+
+[▶️ Watch on YouTube](https://youtu.be/4CWSKUi2Ys4)
+
+</td>
+</tr>
+</table>
 
 ---
 
